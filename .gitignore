@@ -1,0 +1,20 @@
+# Build folders
+c++/build/
+lib/libTSPSolver.so
+*.o
+*.o.d
+a.out
+
+# Python junk
+__pycache__/
+.venv/
+*.pyc
+
+# Data junk
+*.opt.tour
+*.tsp
+*.Zone.Identifier
+
+# IDEs
+.vs/
+.vscode/
