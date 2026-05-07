@@ -41,7 +41,7 @@ extern "C" {
                 solutionData_out->preprocessingTime_ns
             );
 
-        ComputeTSP::printTSP(*tsp_out);
+        // ComputeTSP::printTSP(*tsp_out);
         
         std::cout << "[C++] Done." << std::endl;
 

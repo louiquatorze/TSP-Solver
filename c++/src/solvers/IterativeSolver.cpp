@@ -20,8 +20,8 @@ ExitStatus IterativeSolver::prepareCPU(Environment& environment, AlgorithmSettin
         return ExitStatus::ERROR_MEMORY_LIMIT;
     
     indices = new u16[tsp.dimension + 1];
-    swaps = new u16[tsp.dimension, 1];
-    
+    swaps = new u16[tsp.dimension + 1];
+        
     return ExitStatus::SUCCESS;
 }
 
@@ -43,12 +43,13 @@ ExitStatus IterativeSolver::solveCPU(Environment& environment, AlgorithmSettings
 
     for (i32 i = 1; i < tsp.dimension; i++) {
         indices[i] = i;
+        swaps[i] = 1;
         solutionData.pathIndices[i] = i;
         
         length += tsp.ew(indices[i - 1], indices[i]);
     }
 
-    length += tsp.ew(0, indices[n]);
+    length += tsp.ew(0, indices[tsp.dimension]);
     minLength = length;
 
     // Heaps algorithm
@@ -74,39 +75,59 @@ ExitStatus IterativeSolver::solveCPU(Environment& environment, AlgorithmSettings
         u128 remaining = totalPermutations - permutations;
         if (its > remaining)
             its = remaining;
-        
+
         for (i32 it = 0; it < its; it++) {
             if (swaps[pos] < pos) {
                 if (pos % 2 == 1) {
-                    length -= tsp.ew(indices[1], 0);
-                    length -= tsp.ew(indices[1], indices[2]);
+                    if (pos == 2) {
+                        length -= tsp.ew(indices[1], indices[0]);
+                        length -= tsp.ew(indices[pos], indices[pos + 1]);
 
-                    length -= tsp.ew(indices[pos], indices[pos - 1]);
-                    length -= tsp.ew(indices[pos], indices[pos + 1]);
-                    
-                    std::swap(indices[1], indices[pos]);
-                    
-                    length += tsp.ew(indices[1], 0);
-                    length += tsp.ew(indices[1], indices[2]);
-                    
-                    length += tsp.ew(indices[pos], indices[pos - 1]);
-                    length += tsp.ew(indices[pos], indices[pos + 1]);
+                        std::swap(indices[1], indices[pos]);
+
+                        length += tsp.ew(indices[1], indices[0]);
+                        length += tsp.ew(indices[pos], indices[pos + 1]);
+                    } else {
+                        length -= tsp.ew(indices[1], indices[0]);
+                        length -= tsp.ew(indices[1], indices[2]);
+
+                        length -= tsp.ew(indices[pos], indices[pos - 1]);
+                        length -= tsp.ew(indices[pos], indices[pos + 1]);
+                        
+                        std::swap(indices[1], indices[pos]);
+                        
+                        length += tsp.ew(indices[1], indices[0]);
+                        length += tsp.ew(indices[1], indices[2]);
+                        
+                        length += tsp.ew(indices[pos], indices[pos - 1]);
+                        length += tsp.ew(indices[pos], indices[pos + 1]);
+                    }
                 } else {
                     i32 sw = swaps[pos];
-
-                    length -= tsp.ew(indices[sw], indices[sw - 1]);
-                    length -= tsp.ew(indices[sw], indices[sw + 1]);
                     
-                    length -= tsp.ew(indices[pos], indices[pos - 1]);
-                    length -= tsp.ew(indices[pos], indices[pos + 1]);
-                    
-                    std::swap(indices[sw], indices[pos]);
+                    if (pos - sw == 1) {
+                        length -= tsp.ew(indices[sw], indices[sw - 1]);
+                        length -= tsp.ew(indices[pos], indices[pos + 1]);
 
-                    length += tsp.ew(indices[sw], indices[sw - 1]);
-                    length += tsp.ew(indices[sw], indices[sw + 1]);
+                        std::swap(indices[sw], indices[pos]);
 
-                    length += tsp.ew(indices[pos], indices[pos - 1]);
-                    length += tsp.ew(indices[pos], indices[pos + 1]);
+                        length += tsp.ew(indices[sw], indices[sw - 1]);
+                        length += tsp.ew(indices[pos], indices[pos + 1]);
+                    } else {
+                        length -= tsp.ew(indices[sw], indices[sw - 1]);
+                        length -= tsp.ew(indices[sw], indices[sw + 1]);
+                        
+                        length -= tsp.ew(indices[pos], indices[pos - 1]);
+                        length -= tsp.ew(indices[pos], indices[pos + 1]);
+                        
+                        std::swap(indices[sw], indices[pos]);
+
+                        length += tsp.ew(indices[sw], indices[sw - 1]);
+                        length += tsp.ew(indices[sw], indices[sw + 1]);
+
+                        length += tsp.ew(indices[pos], indices[pos - 1]);
+                        length += tsp.ew(indices[pos], indices[pos + 1]);
+                    }
                 }
                 
                 if (length < minLength) {

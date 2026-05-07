@@ -13,7 +13,7 @@ __pycache__/
 # Data junk
 *.opt.tour
 *.tsp
-*.Zone.Identifier
+*Zone.Identifier
 
 # IDEs
 .vs/
