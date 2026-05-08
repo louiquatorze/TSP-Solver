@@ -5,13 +5,16 @@
 
 class NearestNeighbourSolver : public TSPSolver {
 public:
-    NearestNeighbourSolver() = default;
+    NearestNeighbourSolver() = delete;
+    NearestNeighbourSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
     ~NearestNeighbourSolver() = default;
 
-protected:
-    ExitStatus prepareCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
-    ExitStatus prepareGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
+    void print() override;
 
-    ExitStatus solveCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
-    ExitStatus solveGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
+protected:
+    ExitStatus prepareCPU() override;
+    ExitStatus prepareGPU() override;
+
+    ExitStatus solveCPU() override;
+    ExitStatus solveGPU() override;
 };

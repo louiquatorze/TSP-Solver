@@ -5,21 +5,23 @@
 #include <random>
 #include <vector>
 
-ExitStatus NearestNeighbourSolver::prepareCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
-    std::iota(solutionData.pathIndices, solutionData.pathIndices + tsp.dimension, 0);
+NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+{ }
+
+ExitStatus NearestNeighbourSolver::prepareCPU() {
+    std::iota(solutionData_out.pathIndices, solutionData_out.pathIndices + tsp.dimension, 0);
 
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus NearestNeighbourSolver::prepareGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
+ExitStatus NearestNeighbourSolver::prepareGPU() {
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus NearestNeighbourSolver::solveCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
-    std::cout << "[C++] Start index:" << algorithmSettings.startIndex << std::endl;
-
-    i32* visited = solutionData.pathIndices;
-    solutionData.pathLength = 0;
+ExitStatus NearestNeighbourSolver::solveCPU() {
+    i32* visited = solutionData_out.pathIndices;
+    solutionData_out.pathLength = 0;
 
     environment.progress.store(0);
 
@@ -54,17 +56,22 @@ ExitStatus NearestNeighbourSolver::solveCPU(Environment& environment, AlgorithmS
             }
             
             std::swap(visited[visitedCount], visited[minIndex]);
-            solutionData.pathLength += minWeight;
+            solutionData_out.pathLength += minWeight;
             visitedCount++;
         }
     }
 
-    solutionData.pathLength += tsp.ew(solutionData.pathIndices[0], solutionData.pathIndices[tsp.dimension - 1]);
+    solutionData_out.pathLength += tsp.ew(solutionData_out.pathIndices[0], solutionData_out.pathIndices[tsp.dimension - 1]);
     environment.progress.store(100);
     
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus NearestNeighbourSolver::solveGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
+ExitStatus NearestNeighbourSolver::solveGPU() {
     return ExitStatus::NOT_SUPPORTED;
+}
+
+void NearestNeighbourSolver::print() {
+    std::cout << "[C++] --- NearestNeighbourSolver ---" << std::endl;
+    std::cout << "[C++] Start index: " << algorithmSettings.startIndex << std::endl;
 }

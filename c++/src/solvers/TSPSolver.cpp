@@ -10,24 +10,23 @@
 #include <functional>
 #include <iostream>
 
-ExitStatus TSPSolver::solve(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out) {
+TSPSolver::TSPSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out) :
+    environment(environment),
+    algorithmSettings(algorithmSettings),
+    tsp(tsp),
+    solutionData_out(solutionData_out)
+{ }
+
+ExitStatus TSPSolver::solve() {
     solutionData_out.dimension = tsp.dimension;
     std::function<ExitStatus()> prepare, solve;
 
     if (algorithmSettings.gpu) {
-        prepare = [&] {
-            return prepareGPU(environment, algorithmSettings, tsp, solutionData_out);
-        };
-        solve = [&] {
-            return solveGPU(environment, algorithmSettings, tsp, solutionData_out);
-        };
+        prepare = [&](){ return prepareGPU(); };
+        solve = [&](){ return solveGPU(); };
     } else {
-        prepare = [&] {
-            return prepareCPU(environment, algorithmSettings, tsp, solutionData_out);
-        };
-        solve = [&] {
-            return solveCPU(environment, algorithmSettings, tsp, solutionData_out);
-        };
+        prepare = [&](){ return prepareCPU(); };
+        solve = [&](){ return solveCPU(); };
     }
 
     ExitStatus exitStatus = Timer::time(prepare, solutionData_out.preparationTime_ns);

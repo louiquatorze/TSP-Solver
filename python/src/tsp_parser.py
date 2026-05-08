@@ -128,8 +128,9 @@ class TSPParser:
                         tour_section = True
                         continue
                 else:
-                    tsp_parsed.opt_path_indices[tour_index] = int(line) - 1
-                    tour_index += 1
+                    for coord in line.split():
+                        tsp_parsed.opt_path_indices[tour_index] = int(coord) - 1
+                        tour_index += 1
 
             tsp_parsed.opt_path_indices[tsp_parsed.dimension] = tsp_parsed.opt_path_indices[0]
 

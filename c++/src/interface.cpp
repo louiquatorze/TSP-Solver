@@ -49,15 +49,19 @@ extern "C" {
     }
 
     i32 solveTSP(void* handle, AlgorithmSettings* algorithmSettings, TSP* tsp, SolutionData* solutionData_out){
-        std::cout << "[C++] ### Solving ###" << std::endl;
+        std::cout << "[C++] ---------------------" << std::endl;
+        std::cout << "[C++]        Solving       "<< std::endl;
+        std::cout << "[C++] ---------------------" << std::endl;
         std::cout << "[C++] Algorithm: " << algorithmSettings->algorithm << std::endl;
         std::cout << "[C++] GPU: " << algorithmSettings->gpu << std::endl;
         std::cout << "[C++] Dimension: " << tsp->dimension << std::endl;
 
         auto context = static_cast<Context*>(handle);
 
-        context->solver = TSPSolverFactory::create(*algorithmSettings);
-        ExitStatus exitStatus = context->solver->solve(context->environment, *algorithmSettings, *tsp, *solutionData_out);
+        context->solver = TSPSolverFactory::create(context->environment, *algorithmSettings, *tsp, *solutionData_out);
+
+        context->solver->print();
+        ExitStatus exitStatus = context->solver->solve();
 
         // Delete the solver
         context->solver = nullptr;

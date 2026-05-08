@@ -6,12 +6,16 @@
 #include <cmath>
 #include <Util.h>
 
+IterativeSolver::IterativeSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+{ }
+
 IterativeSolver::~IterativeSolver() {
     delete[] indices;
     delete[] swaps;
 }
 
-ExitStatus IterativeSolver::prepareCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
+ExitStatus IterativeSolver::prepareCPU() {
     if (tsp.dimension > 35) 
         // Dimension > 35 -> Permutable elements n >= 35
         // 2^128 = 3.4e38 -> Max permutation count that fits in a u128 (for progress)
@@ -25,11 +29,11 @@ ExitStatus IterativeSolver::prepareCPU(Environment& environment, AlgorithmSettin
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus IterativeSolver::prepareGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
+ExitStatus IterativeSolver::prepareGPU() {
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus IterativeSolver::solveCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
+ExitStatus IterativeSolver::solveCPU() {
     environment.progress.store(0);
 
     i64 length = 0;
@@ -39,12 +43,12 @@ ExitStatus IterativeSolver::solveCPU(Environment& environment, AlgorithmSettings
     indices[0] = 0;
     indices[tsp.dimension] = 0;
 
-    solutionData.pathIndices[0] = 0;
+    solutionData_out.pathIndices[0] = 0;
 
     for (i32 i = 1; i < tsp.dimension; i++) {
         indices[i] = i;
         swaps[i] = 1;
-        solutionData.pathIndices[i] = i;
+        solutionData_out.pathIndices[i] = i;
         
         length += tsp.ew(indices[i - 1], indices[i]);
     }
@@ -134,7 +138,7 @@ ExitStatus IterativeSolver::solveCPU(Environment& environment, AlgorithmSettings
                     minLength = length;
                     
                     for (i32 i = 1; i < tsp.dimension; i++)
-                        solutionData.pathIndices[i] = indices[i];
+                        solutionData_out.pathIndices[i] = indices[i];
                 }
                 
                 swaps[pos]++; 
@@ -149,11 +153,15 @@ ExitStatus IterativeSolver::solveCPU(Environment& environment, AlgorithmSettings
     }
 
     environment.progress.store(100);
-    solutionData.pathLength = minLength;
+    solutionData_out.pathLength = minLength;
     
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus IterativeSolver::solveGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) {
+ExitStatus IterativeSolver::solveGPU() {
     return ExitStatus::ERROR_NOT_IMPLEMENTED;
+}
+
+void IterativeSolver::print() {
+    std::cout << "[C++] --- IterativeSolver ---" << std::endl;
 }

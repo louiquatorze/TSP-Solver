@@ -25,7 +25,7 @@ ExitStatus ComputeTSP::fillTSPData(Environment& environment, AlgorithmSettings& 
         }
 
         case AlgorithmSettings::Algorithm::AntColony: {
-            auto setter = SetBoth(tsp_out, algorithmSettings.beta);            
+            auto setter = SetBoth(tsp_out, algorithmSettings.beta);
             
             ComputeTSP::clearDiagonal(tsp_out, setter);
             return ComputeTSP::dispatchBySetter(environment, tspRaw, tsp_out, setter);
@@ -212,43 +212,4 @@ ExitStatus ComputeTSP::computeTSPData(Environment& environment, TSPRaw& tspRaw, 
     environment.progress.store(100);
 
     return ExitStatus::SUCCESS;
-}
-
-void ComputeTSP::printTSP(TSP& tsp) {
-    std::cout << "[C++] --- TSP ---" << std::endl;
-    std::cout << "[C++] Dimension: " << tsp.dimension << std::endl;
-    
-    if (tsp.edgeWeights != nullptr) {
-        std::cout << "[C++] EdgeWeights: " << std::endl;
-
-        i32 index = 0;
-        for (i32 j = 0; j < tsp.dimension; j++) {
-            std::cout << std::setw(5) << j;
-            std::cout << ": ";
-
-            for (i32 i = 0; i < tsp.dimension; i++) {
-                std::cout << std::setw(4) << tsp.edgeWeights[index];
-                std::cout << " ";
-                index++;
-            }
-            std::cout << std::endl;
-        }
-    }
-
-    if (tsp.heuristics != nullptr) {
-        std::cout << "[C++] Heuristics: " << std::endl;
-
-        i32 index = 0;
-        for (i32 j = 0; j < tsp.dimension; j++) {
-            std::cout << std::setw(5) << j;
-            std::cout << ": ";
-
-            for (i32 i = 0; i < tsp.dimension; i++) {
-                std::cout << std::setw(4) << tsp.heuristics[index];
-                std::cout << " ";
-                index++;
-            }
-            std::cout << std::endl;
-        }
-    } 
 }

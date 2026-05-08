@@ -1,26 +1,33 @@
 
 #pragma once
 
-#include <functional>
-#include <memory>
-
 #include "AlgorithmSettings.h"
 #include "TSP.h"
 #include "SolutionData.h"
 #include "Environment.h"
 #include "ExitStatus.h"
 
+#include <functional>
+#include <memory>
+
 class TSPSolver {
 public:
-    TSPSolver() = default;
+    TSPSolver() = delete;
+    TSPSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
     virtual ~TSPSolver() = default;
 
-    ExitStatus solve(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out);
+    ExitStatus solve();
+    virtual void print() = 0;
 
 protected:
-    virtual ExitStatus prepareCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) = 0;
-    virtual ExitStatus prepareGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) = 0;
+    virtual ExitStatus prepareCPU() = 0;
+    virtual ExitStatus prepareGPU() = 0;
 
-    virtual ExitStatus solveCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) = 0;
-    virtual ExitStatus solveGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) = 0;
+    virtual ExitStatus solveCPU() = 0;
+    virtual ExitStatus solveGPU() = 0;
+
+    Environment& environment;
+    AlgorithmSettings& algorithmSettings;
+    TSP& tsp;
+    SolutionData& solutionData_out;
 };

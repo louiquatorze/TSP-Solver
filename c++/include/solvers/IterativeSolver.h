@@ -5,15 +5,18 @@
 
 class IterativeSolver : public TSPSolver {
 public:
-    IterativeSolver() = default;
+    IterativeSolver() = delete;
+    IterativeSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
     ~IterativeSolver();
 
-protected:
-    ExitStatus prepareCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
-    ExitStatus prepareGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
+    void print() override;
 
-    ExitStatus solveCPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
-    ExitStatus solveGPU(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData) override;
+protected:
+    ExitStatus prepareCPU() override;
+    ExitStatus prepareGPU() override;
+
+    ExitStatus solveCPU() override;
+    ExitStatus solveGPU() override;
 
 private:
     u16* indices;

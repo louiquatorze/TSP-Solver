@@ -50,9 +50,7 @@ struct SetBoth {
 
     inline void operator()(i32 edgeWeight, i32 i, i32 j) {
         f32 heuristic = 1.0f / std::pow(edgeWeight, beta);
-
-        std::cout << edgeWeight << " " << beta << " " << heuristic << std::endl;
-
+        
         i32 i1 = i * tsp.dimension + j;
         i32 i2 = j * tsp.dimension + i;
 

@@ -1,8 +1,9 @@
 
 from PySide6.QtWidgets import (QCheckBox, QWidget, QVBoxLayout, QGroupBox, QComboBox, 
                              QLabel, QStackedWidget, QPushButton, QFrame, 
-                             QFormLayout, QSpinBox, QDoubleSpinBox)
+                             QFormLayout, QSpinBox, QHBoxLayout, QSlider)
 from PySide6.QtCore import Signal
+from PySide6.QtCore import Qt
 
 from src.solver.structs.algorithm_settings import AlgorithmSettings
 
@@ -80,11 +81,85 @@ class SolveTab(QWidget):
 
         return page
     
-    # Params for ant colony optimization algorithm
     def _create_ac_params(self):
         page = QFrame()
-        layout = QFormLayout(page)
+        layout = QVBoxLayout(page)  # Vertical layout for the whole page
+        layout.setSpacing(15)       # Add space between parameter blocks
 
+        def create_slider_block(name, default=0.5, scale=100, min_val=0.0, max_val=1.0):
+            # Container for the whole "block"
+            block = QWidget()
+            block_layout = QVBoxLayout(block)
+            block_layout.setContentsMargins(0, 0, 0, 0)
+            block_layout.setSpacing(4)
+
+            # Header row: Name on left, Value on right
+            header_layout = QHBoxLayout()
+            name_label = QLabel(f"<b>{name}</b>")
+            val_label = QLabel(f"{default:.2f}")
+            header_layout.addWidget(name_label)
+            header_layout.addStretch()
+            header_layout.addWidget(val_label)
+
+            # The Slider
+            slider = QSlider(Qt.Orientation.Horizontal)
+            slider.setRange(int(min_val * scale), int(max_val * scale))
+            slider.setValue(int(default * scale))
+            
+            # Update value label on move
+            slider.valueChanged.connect(
+                lambda v: val_label.setText(f"{(v / scale):.2f}")
+            )
+            
+            block_layout.addLayout(header_layout)
+            block_layout.addWidget(slider)
+
+            # Store references for later retrieval
+            block.slider = slider
+            block.scale = scale
+            return block
+
+        def create_int_block(name, value=10, maximum=1000):
+            block = QWidget()
+            block_layout = QVBoxLayout(block)
+            block_layout.setContentsMargins(0, 0, 0, 0)
+            
+            label = QLabel(f"<b>{name}</b>")
+            sb = QSpinBox()
+            sb.setRange(1, maximum)
+            sb.setValue(value)
+            
+            block_layout.addWidget(label)
+            block_layout.addWidget(sb)
+            
+            block.spinbox = sb
+            return block
+
+        # 1. Integer Blocks
+        self.ac_ant_count_input = create_int_block("Ant Count", 20)
+        self.ac_iterations_input = create_int_block("Iterations", 100)
+
+        # 2. Slider Blocks (Floats)
+        self.ac_beta_input = create_slider_block("Beta", 2.0, scale=100, min_val=0.0, max_val=5.0)
+        self.ac_pheromone_power_input = create_slider_block("Pheromone Power", 1.0, scale=100, min_val=0.0, max_val=5.0)
+        self.ac_exploitation_prob_input = create_slider_block("Exploitation Probability", 0.9)
+        self.ac_local_evap_input = create_slider_block("Local Evaporation Rate", 0.1)
+        self.ac_global_evap_input = create_slider_block("Global Evaporation Rate", 0.1)
+
+        widgets = [
+            self.ac_ant_count_input, 
+            self.ac_iterations_input, 
+            self.ac_beta_input, 
+            self.ac_pheromone_power_input,
+            self.ac_exploitation_prob_input, 
+            self.ac_local_evap_input, 
+            self.ac_global_evap_input, 
+        ]
+
+        for widget in widgets:
+            layout.addWidget(widget)
+
+        layout.addStretch() # Pushes everything to the top
         return page
 
     def _on_solve_clicked(self):
@@ -95,9 +170,16 @@ class SolveTab(QWidget):
         if algorithm_settings.algorithm == AlgorithmSettings.Algorithm.Iterative:
             pass
         elif algorithm_settings.algorithm == AlgorithmSettings.Algorithm.NearestNeighbour:
-            algorithm_settings.startIndex = self.nn_start_node.value()
+            algorithm_settings.startIndex = int(self.nn_start_node.value())
         elif algorithm_settings.algorithm == AlgorithmSettings.Algorithm.AntColony:
-            algorithm_settings.beta = 1.0
-            pass
+            algorithm_settings.beta = int(self.ac_beta_input.slider.value()) / self.ac_beta_input.scale
+
+            algorithm_settings.antCount = int(self.ac_ant_count_input.spinbox.value())
+            algorithm_settings.iterations = int(self.ac_iterations_input.spinbox.value())
+
+            algorithm_settings.pheromonePower = int(self.ac_pheromone_power_input.slider.value()) / self.ac_pheromone_power_input.scale
+            algorithm_settings.exploitationProbability = int(self.ac_exploitation_prob_input.slider.value()) / self.ac_exploitation_prob_input.scale
+            algorithm_settings.localEvaporationRate = int(self.ac_local_evap_input.slider.value()) / self.ac_local_evap_input.scale
+            algorithm_settings.globalEvaporationRate = int(self.ac_global_evap_input.slider.value()) / self.ac_global_evap_input.scale
 
         self.solveRequested.emit(algorithm_settings)

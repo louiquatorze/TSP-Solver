@@ -14,10 +14,19 @@ extern "C" {
         Algorithm algorithm;
         bool gpu;
 
+        // Heuristics
+        f32 beta;
+
         // Nearest Neighbour
         i32 startIndex;
 
         // Ant Colony System
-        f32 beta;
+        i32 antCount;
+        i32 iterations;
+
+        f32 exploitationProbability;
+        f32 localEvaporationRate;
+        f32 globalEvaporationRate;
+        f32 pheromonePower;
     };
 }
