@@ -46,7 +46,7 @@ extern "C" {
         EdgeWeightFormat edgeWeightFormat;
         NodeCoordType nodeCoordType;
         
-        i32* edgeWeights;
+        u32* edgeWeights;
         f32* nodeCoords;
     };
 }

@@ -29,7 +29,7 @@ for i in range(count):
     y = (i // side) * dist
     coords[i] = "{} {:.4f} {:.4f}\n".format(i + 1, x, y)
 
-path = "./grid.txt"
+path = "./grid.generated"
 with open(path, "w") as file:
     file.writelines(count_prefix + coords)
     print(f"Grid generated in { path }.")

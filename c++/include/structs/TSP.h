@@ -10,10 +10,10 @@ extern "C" {
     struct TSP {
         i32 dimension;
 
-        i32* edgeWeights;
+        u32* edgeWeights;
         f32* heuristics;
 
-        inline i32& ew(i32 i, i32 j) {
+        inline u32& ew(i32 i, i32 j) {
             return edgeWeights[j * dimension + i];
         }
 

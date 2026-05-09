@@ -23,14 +23,6 @@ protected:
     ExitStatus solveGPU() override;
 
 private:
-    const i32 antCount = 100;
-    const i32 iterations = 100;
-
-    const f32 exploitationProbability = 0.9;
-    const f32 localEvaporationRate = 0.1;
-    const f32 globalEvaporationRate = 0.1;
-    const f32 pheromonePower = 0.8;
-    
     f32 initialPheromoneStrength = 0.0f;
 
     i32* visited    = nullptr;
@@ -47,5 +39,4 @@ private:
 
     void runAntColonyIteration();
     void evaluateBestPathAndResetAnts();
-    void stepAnt(i32 ant);
 };

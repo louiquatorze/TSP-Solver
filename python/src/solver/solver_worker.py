@@ -35,14 +35,14 @@ class SolverWorker(QObject):
         edge_weight_type = tsp_parsed.edge_weight_type if tsp_parsed.edge_weight_type else 0
         edge_weight_format = tsp_parsed.edge_weight_format if tsp_parsed.edge_weight_format else 0
         node_coord_type = tsp_parsed.node_coord_type if tsp_parsed.node_coord_type else 0
-        edge_weights_ref = (ctypes.c_int32 * len(tsp_parsed.edge_weights))(*tsp_parsed.edge_weights) if tsp_parsed.edge_weights else None
+        edge_weights_ref = (ctypes.c_uint32 * len(tsp_parsed.edge_weights))(*tsp_parsed.edge_weights) if tsp_parsed.edge_weights else None
         node_coords_ref = (ctypes.c_float * len(tsp_parsed.node_coords))(*tsp_parsed.node_coords) if tsp_parsed.node_coords else None
         
         tsp_raw_buffer.dimension = tsp_parsed.dimension
         tsp_raw_buffer.edgeWeightType = ctypes.c_int32(edge_weight_type)
         tsp_raw_buffer.edgeWeightFormat = ctypes.c_int32(edge_weight_format)
         tsp_raw_buffer.nodeCoordType = ctypes.c_int32(node_coord_type)
-        tsp_raw_buffer.edgeWeights = ctypes.cast(edge_weights_ref, ctypes.POINTER(ctypes.c_int32))
+        tsp_raw_buffer.edgeWeights = ctypes.cast(edge_weights_ref, ctypes.POINTER(ctypes.c_uint32))
         tsp_raw_buffer.nodeCoords = ctypes.cast(node_coords_ref, ctypes.POINTER(ctypes.c_float))
 
         # Create TSP output buffer
@@ -56,11 +56,11 @@ class SolverWorker(QObject):
 
         data_count = tsp_raw_buffer.dimension * tsp_raw_buffer.dimension
 
-        edge_weights_np = np.empty(data_count, dtype=np.int32)   if has_edge_weights    else None
+        edge_weights_np = np.empty(data_count, dtype=np.uint32)  if has_edge_weights    else None
         heuristics_np   = np.empty(data_count, dtype=np.float32) if has_heuristics      else None
 
-        tsp_buffer.edgeWeights = edge_weights_np.ctypes.data_as(ctypes.POINTER(ctypes.c_int32)) if edge_weights_np is not None else None
-        tsp_buffer.heuristics  = heuristics_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))   if heuristics_np is not None else None
+        tsp_buffer.edgeWeights = edge_weights_np.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32)) if edge_weights_np is not None else None
+        tsp_buffer.heuristics  = heuristics_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))    if heuristics_np is not None else None
         
         # Create solution data output buffer
         solution_data_buffer = SolutionData()

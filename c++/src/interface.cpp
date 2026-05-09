@@ -5,6 +5,8 @@
 #include "ExitStatus.h"
 #include "Timer.h"
 
+#include "NearestNeighbourSolver.h"
+
 #include <iostream>
 #include <cstring>
 #include <chrono>

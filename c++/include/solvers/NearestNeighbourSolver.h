@@ -11,6 +11,8 @@ public:
 
     void print() override;
 
+    static ExitStatus getPathLength(Environment& environment, TSP& tsp, i64& length_out);
+    
 protected:
     ExitStatus prepareCPU() override;
     ExitStatus prepareGPU() override;

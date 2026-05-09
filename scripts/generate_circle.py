@@ -30,7 +30,7 @@ for i in range(count):
 
     coords[i] = "{} {:.4f} {:.4f}\n".format(i + 1, x, y)
 
-path = "./circle.txt"
+path = "./circle.generated"
 with open(path, "w") as file:
     file.writelines(count_prefix + coords)
     print(f"Circle generated in { path }.")

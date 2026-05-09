@@ -8,6 +8,6 @@ class TSPRaw(ctypes.Structure):
         ("edgeWeightType", ctypes.c_int32),
         ("edgeWeightFormat", ctypes.c_int32),
         ("nodeCoordType", ctypes.c_int32),
-        ("edgeWeights", ctypes.POINTER(ctypes.c_int32)),
+        ("edgeWeights", ctypes.POINTER(ctypes.c_uint32)),
         ("nodeCoords", ctypes.POINTER(ctypes.c_float))
     ]
