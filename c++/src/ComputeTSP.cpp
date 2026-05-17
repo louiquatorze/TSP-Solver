@@ -15,24 +15,32 @@ ExitStatus ComputeTSP::fillTSPData(Environment& environment, AlgorithmSettings& 
 
     // Dispatch the filler functions by how the data is to be set
 
-    switch (algorithmSettings.algorithm) {
-        case AlgorithmSettings::Algorithm::Iterative:
-        case AlgorithmSettings::Algorithm::NearestNeighbour: {
-            auto setter = SetEdgeWeight(tsp_out);
+    bool hasEdgeWeights = TSP::hasEdgeWeights.contains(algorithmSettings.algorithm);
+    bool hasHeuristics = TSP::hasHeuristics.contains(algorithmSettings.algorithm);
+    bool requiresBeta = TSP::requiresBeta.contains(algorithmSettings.algorithm);
 
-            ComputeTSP::clearDiagonal(tsp_out, setter);
-            return ComputeTSP::dispatchBySetter(environment, tspRaw, tsp_out, setter);
-        }
+    f32 beta = requiresBeta ? algorithmSettings.beta : 1.0;
 
-        case AlgorithmSettings::Algorithm::AntColony: {
-            auto setter = SetBoth(tsp_out, algorithmSettings.beta);
-            
-            ComputeTSP::clearDiagonal(tsp_out, setter);
-            return ComputeTSP::dispatchBySetter(environment, tspRaw, tsp_out, setter);
-        }
+    if (hasEdgeWeights && hasHeuristics) {
+        auto setter = SetBoth(tsp_out, beta);
+        
+        ComputeTSP::clearDiagonal(tsp_out, setter);
+        return ComputeTSP::dispatchBySetter(environment, tspRaw, tsp_out, setter);
 
-        default:
-            return ExitStatus::ERROR_INVALID_INPUT;
+    } else if (hasEdgeWeights) {
+        auto setter = SetEdgeWeight(tsp_out);
+        
+        ComputeTSP::clearDiagonal(tsp_out, setter);
+        return ComputeTSP::dispatchBySetter(environment, tspRaw, tsp_out, setter);
+
+    } else if (hasHeuristics) {
+        auto setter = SetHeuristic(tsp_out, beta);
+        
+        ComputeTSP::clearDiagonal(tsp_out, setter);
+        return ComputeTSP::dispatchBySetter(environment, tspRaw, tsp_out, setter);
+        
+    } else {
+        return ExitStatus::ERROR_INVALID_INPUT;
     }
 }
 

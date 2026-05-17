@@ -8,24 +8,24 @@ Algo = AlgorithmSettings.Algorithm
 
 class TSP(Structure):
     has_edge_weights = {
-        Algo.Iterative:         True,
-        Algo.NearestNeighbour:  True,
-        Algo.AntColony:         True,
-        Algo.Christofides:      True
+        Algo.Iterative,
+        Algo.NearestNeighbour,
+        Algo.AntColony,
+        Algo.Christofides
     }
 
     has_heuristics = {
-        Algo.Iterative:         False,
-        Algo.NearestNeighbour:  False,
-        Algo.AntColony:         True,
-        Algo.Christofides:      False
+        # Algo.Iterative,
+        # Algo.NearestNeighbour,
+        Algo.AntColony,
+        # Algo.Christofides
     }
 
     requires_beta = {
-        Algo.Iterative:         False,
-        Algo.NearestNeighbour:  False,
-        Algo.AntColony:         True,
-        Algo.Christofides:      False
+        # Algo.Iterative,
+        # Algo.NearestNeighbour,
+        Algo.AntColony,
+        # Algo.Christofides
     }
 
     edge_weights_np: Array

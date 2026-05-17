@@ -17,14 +17,14 @@ class TSPCache:
         self._id = id
         self._beta = beta
 
-        self._has_edge_weights = TSP.has_edge_weights[algorithm] 
-        self._has_heuristics = TSP.has_heuristics[algorithm]
-        self._requires_beta = TSP.requires_beta[algorithm]
+        self._has_edge_weights = algorithm in TSP.has_edge_weights
+        self._has_heuristics = algorithm in TSP.has_heuristics
+        self._requires_beta = algorithm in TSP.requires_beta
 
     def is_cached(self, id, beta, algorithm):
-        has_edge_weights = TSP.has_edge_weights[algorithm] 
-        has_heuristics = TSP.has_heuristics[algorithm]
-        requires_beta = TSP.requires_beta[algorithm]
+        has_edge_weights = algorithm in TSP.has_edge_weights
+        has_heuristics = algorithm in TSP.has_heuristics
+        requires_beta = algorithm in TSP.requires_beta
         
         if self.tsp is None:
             return False

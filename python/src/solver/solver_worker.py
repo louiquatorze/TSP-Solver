@@ -77,11 +77,11 @@ class SolverWorker(QObject):
 
             data_count = tsp_raw_buffer.dimension * tsp_raw_buffer.dimension
 
-            if TSP.has_edge_weights[algorithm]:
+            if algorithm in TSP.has_edge_weights:
                 tsp_buffer.edge_weights_np = np.empty(data_count, dtype=np.uint32)
                 tsp_buffer.edgeWeights = tsp_buffer.edge_weights_np.ctypes.data_as(ctypes.POINTER(ctypes.c_uint32))
 
-            if TSP.has_heuristics[algorithm]:
+            if algorithm in TSP.has_heuristics:
                 tsp_buffer.heuristics_np = np.empty(data_count, dtype=np.float32)
                 tsp_buffer.heuristics = tsp_buffer.heuristics_np.ctypes.data_as(ctypes.POINTER(ctypes.c_float))
 

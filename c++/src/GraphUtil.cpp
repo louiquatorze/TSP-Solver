@@ -5,8 +5,6 @@
 #include <random>
 #include <iostream>
 
-#define INT_MAX 
-
 std::vector<i32> GraphUtil::minimumSpanningTree(u32* edgeWeights, i32 dimension) {
     std::vector<i32> parent(dimension);
 

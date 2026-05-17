@@ -1,0 +1,68 @@
+[
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/interface.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/interface.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/interface.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/interface.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/Context.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/Context.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/Context.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/Context.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/ComputeTSP.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/ComputeTSP.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/ComputeTSP.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/ComputeTSP.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/Timer.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/Timer.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/Timer.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/Timer.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/TSPSolverFactory.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/TSPSolverFactory.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/TSPSolverFactory.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/TSPSolverFactory.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/GraphUtil.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/GraphUtil.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/GraphUtil.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/GraphUtil.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/solvers/TSPSolver.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/solvers/TSPSolver.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/solvers/TSPSolver.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/solvers/TSPSolver.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/solvers/IterativeSolver.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/solvers/IterativeSolver.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/solvers/IterativeSolver.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/solvers/IterativeSolver.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/solvers/NearestNeighbourSolver.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/solvers/NearestNeighbourSolver.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/solvers/NearestNeighbourSolver.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/solvers/NearestNeighbourSolver.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/solvers/AntColonySolver.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/solvers/AntColonySolver.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/solvers/AntColonySolver.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/solvers/AntColonySolver.cpp.o"
+},
+{
+  "directory": "/home/louis/projects/TSP-Solver/build",
+  "command": "/usr/bin/c++ -DBUILDING_DLL -DTSPSolver_EXPORTS -I/home/louis/projects/TSP-Solver/c++/include -I/home/louis/projects/TSP-Solver/c++/include/solvers -I/home/louis/projects/TSP-Solver/c++/include/structs -g -std=c++20 -fPIC -o CMakeFiles/TSPSolver.dir/src/solvers/ChristofidesSolver.cpp.o -c /home/louis/projects/TSP-Solver/c++/src/solvers/ChristofidesSolver.cpp",
+  "file": "/home/louis/projects/TSP-Solver/c++/src/solvers/ChristofidesSolver.cpp",
+  "output": "CMakeFiles/TSPSolver.dir/src/solvers/ChristofidesSolver.cpp.o"
+}
+]

@@ -2,12 +2,35 @@
 #pragma once
 
 #include "types.h"
+#include "AlgorithmSettings.h"
 
 #include <iostream>
 #include <iomanip>
+#include <set>
 
 extern "C" {
     struct TSP {
+        inline const static std::set<AlgorithmSettings::Algorithm> hasEdgeWeights ={
+            AlgorithmSettings::Algorithm::Iterative,
+            AlgorithmSettings::Algorithm::NearestNeighbour,
+            AlgorithmSettings::Algorithm::AntColony,
+            AlgorithmSettings::Algorithm::Christofides,
+        };
+
+        inline const static std::set<AlgorithmSettings::Algorithm> hasHeuristics ={
+            // AlgorithmSettings::Algorithm::Iterative,
+            // AlgorithmSettings::Algorithm::NearestNeighbour,
+            AlgorithmSettings::Algorithm::AntColony,
+            // AlgorithmSettings::Algorithm::Christofides,
+        };
+
+        inline const static std::set<AlgorithmSettings::Algorithm> requiresBeta ={
+            // AlgorithmSettings::Algorithm::Iterative,
+            // AlgorithmSettings::Algorithm::NearestNeighbour,
+            AlgorithmSettings::Algorithm::AntColony,
+            // AlgorithmSettings::Algorithm::Christofides,
+        };
+
         i32 dimension;
         
         u32* edgeWeights;
