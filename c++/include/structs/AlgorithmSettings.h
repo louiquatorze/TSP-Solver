@@ -8,7 +8,8 @@ extern "C" {
         enum Algorithm : i32 {
             Iterative = 0,
             NearestNeighbour,
-            AntColony
+            AntColony,
+            Christofides
         };
 
         Algorithm algorithm;

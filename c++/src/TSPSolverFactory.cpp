@@ -4,6 +4,7 @@
 #include "IterativeSolver.h"
 #include "NearestNeighbourSolver.h"
 #include "AntColonySolver.h"
+#include "ChristofidesSolver.h"
 
 std::unique_ptr<TSPSolver> TSPSolverFactory::create(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out) {
     std::unique_ptr<TSPSolver> solver;
@@ -17,6 +18,9 @@ std::unique_ptr<TSPSolver> TSPSolverFactory::create(Environment& environment, Al
             break;
         case AlgorithmSettings::Algorithm::AntColony:
             solver = std::make_unique<AntColonySolver>(environment, algorithmSettings, tsp, solutionData_out);
+            break;
+        case AlgorithmSettings::Algorithm::Christofides:
+            solver = std::make_unique<ChristofidesSolver>(environment, algorithmSettings, tsp, solutionData_out);
             break;
         default:
             solver = nullptr;

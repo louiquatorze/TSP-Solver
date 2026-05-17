@@ -26,6 +26,7 @@ class SolveTab(QWidget):
         self.algo_combo.addItem("Iterative", AlgorithmSettings.Algorithm.Iterative)
         self.algo_combo.addItem("Nearest Neighbor", AlgorithmSettings.Algorithm.NearestNeighbour)
         self.algo_combo.addItem("Ant Colony Optimization", AlgorithmSettings.Algorithm.AntColony)
+        self.algo_combo.addItem("Christofides", AlgorithmSettings.Algorithm.Christofides)
 
         self.algo_combo.currentIndexChanged.connect(lambda idx: self.param_stack.setCurrentIndex(idx))
         
@@ -35,7 +36,7 @@ class SolveTab(QWidget):
         # 1.2. GPU acceleration
         self.use_gpu_checkbox = QCheckBox("GPU")
         algo_layout.addWidget(self.use_gpu_checkbox)
-
+    
         # 2. Dynamic Parameter Section
         self.param_group = QGroupBox("Algorithm Parameters")
         param_layout = QVBoxLayout(self.param_group)
@@ -47,10 +48,12 @@ class SolveTab(QWidget):
         self.it_page = self._create_it_params()
         self.nn_page = self._create_nn_params()
         self.ac_page = self._create_ac_params()
+        self.cr_page = self._create_cr_params()
 
         self.param_stack.addWidget(self.it_page)
         self.param_stack.addWidget(self.nn_page)
         self.param_stack.addWidget(self.ac_page)
+        self.param_stack.addWidget(self.cr_page)
         
         param_layout.addWidget(self.param_stack)
         layout.addWidget(self.param_group)
@@ -162,24 +165,36 @@ class SolveTab(QWidget):
         layout.addStretch() # Pushes everything to the top
         return page
 
+    # Params for christofides algorithm
+    def _create_cr_params(self):
+        page = QFrame()
+        layout = QFormLayout(page)
+
+        return page
+    
     def _on_solve_clicked(self):
         algorithm_settings = AlgorithmSettings()
         algorithm_settings.algorithm = AlgorithmSettings.Algorithm(self.algo_combo.currentIndex())
         algorithm_settings.gpu = self.use_gpu_checkbox.isChecked()
 
-        if algorithm_settings.algorithm == AlgorithmSettings.Algorithm.Iterative:
-            pass
-        elif algorithm_settings.algorithm == AlgorithmSettings.Algorithm.NearestNeighbour:
-            algorithm_settings.startIndex = int(self.nn_start_node.value())
-        elif algorithm_settings.algorithm == AlgorithmSettings.Algorithm.AntColony:
-            algorithm_settings.beta = int(self.ac_beta_input.slider.value()) / self.ac_beta_input.scale
+        Algo = AlgorithmSettings.Algorithm
 
-            algorithm_settings.antCount = int(self.ac_ant_count_input.spinbox.value())
-            algorithm_settings.iterations = int(self.ac_iterations_input.spinbox.value())
+        match algorithm_settings.algorithm:
+            case Algo.Iterative:
+                pass
+            case Algo.NearestNeighbour:
+                algorithm_settings.startIndex = int(self.nn_start_node.value())
+            case Algo.AntColony:
+                algorithm_settings.beta = int(self.ac_beta_input.slider.value()) / self.ac_beta_input.scale
 
-            algorithm_settings.pheromonePower = int(self.ac_pheromone_power_input.slider.value()) / self.ac_pheromone_power_input.scale
-            algorithm_settings.exploitationProbability = int(self.ac_exploitation_prob_input.slider.value()) / self.ac_exploitation_prob_input.scale
-            algorithm_settings.localEvaporationRate = int(self.ac_local_evap_input.slider.value()) / self.ac_local_evap_input.scale
-            algorithm_settings.globalEvaporationRate = int(self.ac_global_evap_input.slider.value()) / self.ac_global_evap_input.scale
+                algorithm_settings.antCount = int(self.ac_ant_count_input.spinbox.value())
+                algorithm_settings.iterations = int(self.ac_iterations_input.spinbox.value())
+
+                algorithm_settings.pheromonePower = int(self.ac_pheromone_power_input.slider.value()) / self.ac_pheromone_power_input.scale
+                algorithm_settings.exploitationProbability = int(self.ac_exploitation_prob_input.slider.value()) / self.ac_exploitation_prob_input.scale
+                algorithm_settings.localEvaporationRate = int(self.ac_local_evap_input.slider.value()) / self.ac_local_evap_input.scale
+                algorithm_settings.globalEvaporationRate = int(self.ac_global_evap_input.slider.value()) / self.ac_global_evap_input.scale
+            case Algo.Christofides:
+                pass
 
         self.solveRequested.emit(algorithm_settings)

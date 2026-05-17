@@ -3,10 +3,11 @@
 
 #include "TSPSolver.h"
 
-class ChristofidesSolver : TSPSolver {
+class ChristofidesSolver : public TSPSolver {
 public:
     ChristofidesSolver() = delete;
     ChristofidesSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
+    ~ChristofidesSolver();
 
     void print() override;
 

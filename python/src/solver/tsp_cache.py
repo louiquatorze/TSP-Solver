@@ -22,8 +22,6 @@ class TSPCache:
         self._requires_beta = TSP.requires_beta[algorithm]
 
     def is_cached(self, id, beta, algorithm):
-        print("c")
-        
         has_edge_weights = TSP.has_edge_weights[algorithm] 
         has_heuristics = TSP.has_heuristics[algorithm]
         requires_beta = TSP.requires_beta[algorithm]
