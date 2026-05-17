@@ -19,7 +19,7 @@ AntColonySolver::~AntColonySolver() {
 }
 
 ExitStatus AntColonySolver::prepareCPU() {
-    minPathLength = 9223372036854775807;
+    minPathLength = INT64_MAX;
     
     // Init random
     std::random_device rd;
