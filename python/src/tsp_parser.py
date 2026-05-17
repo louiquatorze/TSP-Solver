@@ -39,8 +39,6 @@ class TSPParser:
                 if not hasattr(tsp_parsed, key):
                     continue
 
-                if key == "name":
-                    pass
                 if key in ["dimension", "capacity"]:
                     value = int(value.split()[0])
                 elif key == "edge_weight_type":
@@ -133,5 +131,8 @@ class TSPParser:
                         tour_index += 1
 
             tsp_parsed.opt_path_indices[tsp_parsed.dimension] = tsp_parsed.opt_path_indices[0]
+        
+        # For simplicity; No actual enforcement of name singularity implemented
+        tsp_parsed.id = tsp_parsed.name
 
         return tsp_parsed

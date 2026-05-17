@@ -8,6 +8,7 @@ add_library(TSPSolver SHARED
     src/ComputeTSP.cpp
     src/Timer.cpp
     src/TSPSolverFactory.cpp
+    src/GraphUtil.cpp
     
     src/solvers/TSPSolver.cpp 
     src/solvers/IterativeSolver.cpp 

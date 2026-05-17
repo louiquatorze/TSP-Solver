@@ -4,6 +4,7 @@
 #include "TSPSolverFactory.h"
 #include "ExitStatus.h"
 #include "Timer.h"
+#include "GraphUtil.h"
 
 #include "NearestNeighbourSolver.h"
 

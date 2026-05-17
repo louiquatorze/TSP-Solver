@@ -9,7 +9,8 @@ class AlgorithmSettings(Structure):
         Iterative = 0
         NearestNeighbour = 1
         AntColony = 2
-
+        Christofides = 3
+    
     _fields_ = [
         ("algorithm", ctypes.c_int32),
         ("gpu", ctypes.c_bool),

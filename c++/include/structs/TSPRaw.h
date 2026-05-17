@@ -39,7 +39,7 @@ extern "C" {
             TWOD_COORDS,
             THREED_COORDS
         };
-
+        
         i32 dimension;
         
         EdgeWeightType edgeWeightType;

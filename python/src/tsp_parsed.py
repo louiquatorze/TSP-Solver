@@ -43,6 +43,8 @@ class TSPParsed:
         TWOD_DISPLAY    = 1
         NO_DISPLAY      = 2
 
+    id: str = ""
+    
     name: str = ""
     comment: str = ""
     dimension: int = 0

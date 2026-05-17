@@ -100,8 +100,6 @@ ExitStatus AntColonySolver::solveCPU() {
         
         environment.progress.store(100 * i / algorithmSettings.iterations);
 
-        printPheromones();
-
         runAntColonyIteration();
         evaluateBestPathAndResetAnts();
     }

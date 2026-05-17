@@ -9,7 +9,7 @@
 extern "C" {
     struct TSP {
         i32 dimension;
-
+        
         u32* edgeWeights;
         f32* heuristics;
 

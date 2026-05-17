@@ -66,7 +66,7 @@ class SolverHandler(QObject):
         self.solver_thread = QThread()
         self.solver_worker.moveToThread(self.solver_thread)
         self.solver_thread.start()
-
+        
         self.solve.connect(self.solver_worker.solve)
         self.solver_worker.status.connect(self.status.emit)
         self.solver_worker.finished.connect(self.on_worker_finished)
