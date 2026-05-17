@@ -14,6 +14,7 @@ add_library(TSPSolver SHARED
     src/solvers/IterativeSolver.cpp 
     src/solvers/NearestNeighbourSolver.cpp 
     src/solvers/AntColonySolver.cpp 
+    src/solvers/ChristofidesSolver.cpp
 )
 
 target_include_directories(TSPSolver PUBLIC 
