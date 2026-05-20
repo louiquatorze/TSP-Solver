@@ -20,13 +20,9 @@ std::vector<i32> GraphUtil::minimumSpanningTree(u32* edgeWeights, i32 dimension)
     visited[0] = 0;
     dists[0] = 0;
 
-    std::cout << "Initial dists" << std::endl;
     for (i32 i = 1; i < dimension; i++) {
         visited[i] = i;
-        
         dists[i] = edgeWeights[i];
-
-        std::cout << dists[i] << std::endl;
         parent[i] = 0;
     }
 
@@ -60,16 +56,6 @@ std::vector<i32> GraphUtil::minimumSpanningTree(u32* edgeWeights, i32 dimension)
                 parent[index] = minIndex;
             }
         }
-    }
-
-    std::cout << "visited" << std::endl;
-    for (i32 i = 0; i < dimension; i++) {
-        std::cout << visited[i] << std::endl;
-    }
-
-    std::cout << "final tree" << std::endl;
-    for (i32 i = 0; i < dimension; i++) {
-        std::cout << parent[i] << std::endl;
     }
 
     return parent;

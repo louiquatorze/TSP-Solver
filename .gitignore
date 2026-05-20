@@ -1,21 +1,43 @@
-# Build folders
+# ==========================================
+# Build & Binary Artifacts
+# ==========================================
 c++/build/
+# If you ever run CMake in the project root by accident:
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+
+# Compiled Libraries & Objects
 lib/libTSPSolver.so
 *.o
 *.o.d
 a.out
+*.exe
+*.out
+*.app
+*.a
+*.so
+*.dylib
 
-# Python junk
+# ==========================================
+# Python Junk
+# ==========================================
 __pycache__/
 .venv/
 *.pyc
 
-# Data junk
+# ==========================================
+# Data Junk
+# ==========================================
 *.opt.tour
 *.tsp
 *.generated
 *Zone.Identifier
 
-# IDEs
+# ==========================================
+# IDEs & Editors
+# ==========================================
 .vs/
 .vscode/
+CMakePresets.json.user
