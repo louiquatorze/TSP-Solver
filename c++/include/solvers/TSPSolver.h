@@ -30,4 +30,6 @@ protected:
     AlgorithmSettings& algorithmSettings;
     TSP& tsp;
     SolutionData& solutionData_out;
+
+private:
 };

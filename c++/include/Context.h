@@ -4,6 +4,7 @@
 #include "types.h"
 #include "Environment.h"
 #include "TSPSolver.h"
+#include "VulkanContext.h"
 
 typedef void (*ProgressCallback)(i32);
 
@@ -13,5 +14,7 @@ public:
     ~Context();
 
     std::unique_ptr<TSPSolver> solver = nullptr;
+
     Environment environment{};
+    std::unique_ptr<VulkanContext> vulkanContext;
 };

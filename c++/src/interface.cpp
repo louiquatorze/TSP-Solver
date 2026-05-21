@@ -14,25 +14,43 @@
 
 extern "C" {
     void* createContext() {
-        return static_cast<void*>(new Context);
+        try {
+            return static_cast<void*>(new Context);
+        } catch (const std::exception& e) {
+            std::cerr << "[C++] Context initialization failed: " << e.what() << std::endl;
+        }
+        
+        return nullptr;
     }
 
     void destroyContext(void* handle) {
+        if (handle == nullptr)
+            return;
+
         auto context = static_cast<Context*>(handle);
         delete context;
     }
 
     void setInterrupt(void* handle, bool interrupt) {
+        if (handle == nullptr)
+            return;
+            
         auto context = static_cast<Context*>(handle);
         context->environment.interrupt.store(interrupt);
     }
 
     i32 getProgress(void* handle) {
+        if (handle == nullptr)
+            return ExitStatus::ERROR_INVALID_HANDLE;
+            
         auto context = static_cast<Context*>(handle);
         return context->environment.progress.load();
     }
 
     i32 computeTSPData(void* handle, AlgorithmSettings* algorithmSettings, TSPRaw* tspRaw, TSP* tsp_out, SolutionData* solutionData_out) {
+        if (handle == nullptr)
+            return ExitStatus::ERROR_INVALID_HANDLE;
+            
         std::cout << "[C++] Computing TSP data" << std::endl;
         
         auto context = static_cast<Context*>(handle);
@@ -52,6 +70,9 @@ extern "C" {
     }
 
     i32 solveTSP(void* handle, AlgorithmSettings* algorithmSettings, TSP* tsp, SolutionData* solutionData_out){
+        if (handle == nullptr)
+            return ExitStatus::ERROR_INVALID_HANDLE;
+            
         std::cout << "[C++] ---------------------" << std::endl;
         std::cout << "[C++]        Solving       "<< std::endl;
         std::cout << "[C++] ---------------------" << std::endl;

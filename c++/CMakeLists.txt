@@ -1,10 +1,12 @@
 
 cmake_minimum_required(VERSION 3.15)
-project(TSPSolver)
+project(TSPSolver LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
+find_package(Vulkan REQUIRED)
 
 add_library(TSPSolver SHARED 
     src/interface.cpp
@@ -19,13 +21,17 @@ add_library(TSPSolver SHARED
     src/solvers/NearestNeighbourSolver.cpp 
     src/solvers/AntColonySolver.cpp 
     src/solvers/ChristofidesSolver.cpp
+
+    src/vulkan/VulkanContext.cpp
 )
 
 target_include_directories(TSPSolver PUBLIC 
     include
     include/solvers
     include/structs
+    include/vulkan
 )
 set_target_properties(TSPSolver PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib")
 
+target_link_libraries(TSPSolver PRIVATE Vulkan::Vulkan)
 target_compile_definitions(TSPSolver PRIVATE BUILDING_DLL)
