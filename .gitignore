@@ -2,6 +2,7 @@
 # Build & Binary Artifacts
 # ==========================================
 c++/build/
+
 # If you ever run CMake in the project root by accident:
 CMakeFiles/
 CMakeCache.txt
