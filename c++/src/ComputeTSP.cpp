@@ -18,7 +18,7 @@ ExitStatus ComputeTSP::fillTSPData(Environment& environment, AlgorithmSettings& 
     bool hasEdgeWeights = TSP::hasEdgeWeights.contains(algorithmSettings.algorithm);
     bool hasHeuristics = TSP::hasHeuristics.contains(algorithmSettings.algorithm);
     bool requiresBeta = TSP::requiresBeta.contains(algorithmSettings.algorithm);
-
+    
     f32 beta = requiresBeta ? algorithmSettings.beta : 1.0;
 
     if (hasEdgeWeights && hasHeuristics) {

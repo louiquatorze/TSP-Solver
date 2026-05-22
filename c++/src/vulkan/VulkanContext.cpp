@@ -121,10 +121,16 @@ i32 VulkanContext::ratePhysicalDevice(VkPhysicalDevice device) {
             rating += 100000;
             break;
         case VK_PHYSICAL_DEVICE_TYPE_INTEGRATED_GPU:
-            rating += 1000;
+            rating += 5000;
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_VIRTUAL_GPU:
+            rating += 2500;
             break;
         case VK_PHYSICAL_DEVICE_TYPE_OTHER:
             rating += 500;
+            break;
+        case VK_PHYSICAL_DEVICE_TYPE_CPU:
+            rating += 0;
             break;
         default:
             return -1;
