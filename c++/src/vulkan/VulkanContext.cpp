@@ -3,6 +3,7 @@
 
 #include <iostream>
 #include <cstring>
+#include <magic_enum.hpp>
 
 VulkanContext::VulkanContext() {
     createInstance();
@@ -90,7 +91,9 @@ void VulkanContext::pickPhysicalDevice() {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(m_physicalDevice, &deviceProperties);
 
-    std::cout << "[C++] Selected GPU: " << deviceProperties.deviceName << "\n";
+    std::cout << "[C++] Physical device selected: " << std::endl;
+    std::cout << "[C++] -- Physical device type: " << magic_enum::enum_name(deviceProperties.deviceType) << std::endl;
+    std::cout << "[C++] -- Selected GPU: " << deviceProperties.deviceName << "\n";
 }
 
 i32 VulkanContext::ratePhysicalDevice(VkPhysicalDevice device) {
@@ -113,8 +116,6 @@ i32 VulkanContext::ratePhysicalDevice(VkPhysicalDevice device) {
 
     // Add max compute queue family score
     i32 rating = computeFamily->second * 5;
-
-    std::cout << "[C++] Physical device type: " << deviceProperties.deviceType << std::endl;
 
     switch (deviceProperties.deviceType) {
         case VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU:

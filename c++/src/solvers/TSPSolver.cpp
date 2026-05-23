@@ -9,6 +9,7 @@
 #include <chrono>
 #include <functional>
 #include <iostream>
+#include <vulkan/vulkan.h>
 
 TSPSolver::TSPSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out) :
     environment(environment),
@@ -35,6 +36,8 @@ ExitStatus TSPSolver::solve() {
         std::cerr << "[C++ Error] Preparation failed" << std::endl;
         return exitStatus;
     }
+
+
     
     return Timer::time(solve, solutionData_out.solutionTime_ns);
 }

@@ -32,4 +32,5 @@ protected:
     SolutionData& solutionData_out;
 
 private:
+    ExitStatus prepareGPU();
 };
