@@ -6,17 +6,13 @@
 #include <set>
 #include <limits>
 
-ChristofidesSolver::ChristofidesSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+ChristofidesSolver::ChristofidesSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out)
 { }
 
 ChristofidesSolver::~ChristofidesSolver() { }
 
 ExitStatus ChristofidesSolver::prepareCPU() {
-    return ExitStatus::SUCCESS;
-}
-
-ExitStatus ChristofidesSolver::prepareGPU() {
     return ExitStatus::SUCCESS;
 }
 
@@ -135,8 +131,12 @@ ExitStatus ChristofidesSolver::solveCPU() {
     return ExitStatus::SUCCESS;
 }
 
+ExitStatus ChristofidesSolver::prepareGPU() {
+    return ExitStatus::NOT_SUPPORTED;
+}
+
 ExitStatus ChristofidesSolver::solveGPU() {
-    return ExitStatus::ERROR_NOT_IMPLEMENTED;
+    return ExitStatus::NOT_SUPPORTED;
 }
 
 void ChristofidesSolver::print() {

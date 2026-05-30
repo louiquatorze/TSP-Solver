@@ -12,8 +12,12 @@
 #include <cstring>
 #include <chrono>
 
+#include "PathService.h"
+
 extern "C" {
     void* createContext() {
+        PathService::printAll();
+        
         try {
             return static_cast<void*>(new Context);
         } catch (const std::exception& e) {

@@ -1,7 +1,7 @@
 
 #pragma once    
 
-#include "ComputePipeline.h"
+#include "ComputePipelineFamily.h"
 
 #include <vulkan/vulkan.h>
 
@@ -13,11 +13,16 @@ public:
     void create(VkDevice device);
     void destroyAll(VkDevice device);
 
-    ComputePipelineFamily& getIterativePipelineFamily();
-    ComputePipelineFamily& getAntColonyPipelineFamily();
+    VkPipeline& getIterativePipeline();
+    VkPipeline& getAntColonyPipeline();
 private:
+    void declareBuffers();
+    
     void createIterativePipelineFamily(VkDevice device);
     void createAntColonyPipelineFamily(VkDevice device);
+
+    VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+    VkPipelineLayout pipelineLayout           = VK_NULL_HANDLE;
 
     ComputePipelineFamily iterative;
     ComputePipelineFamily antColony;

@@ -7,8 +7,8 @@
 #include <random>
 #include <vector>
 
-AntColonySolver::AntColonySolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+AntColonySolver::AntColonySolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out)
 { }
 
 AntColonySolver::~AntColonySolver() {

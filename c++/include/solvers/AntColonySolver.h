@@ -8,7 +8,7 @@
 class AntColonySolver : public TSPSolver {    
 public:
     AntColonySolver() = delete;
-    AntColonySolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
+    AntColonySolver(Environment&, VulkanContext&, AlgorithmSettings&, TSP&, SolutionData&);
     ~AntColonySolver();
 
     void print() override;

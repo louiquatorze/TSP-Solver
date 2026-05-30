@@ -5,8 +5,8 @@
 #include <random>
 #include <vector>
 
-NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out)
 { }
 
 ExitStatus NearestNeighbourSolver::getPathLength(Environment& environment, TSP& tsp, i64& length_out) {
@@ -58,10 +58,6 @@ ExitStatus NearestNeighbourSolver::prepareCPU() {
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus NearestNeighbourSolver::prepareGPU() {
-    return ExitStatus::SUCCESS;
-}
-
 ExitStatus NearestNeighbourSolver::solveCPU() {
     i32* visited = solutionData_out.pathIndices;
     solutionData_out.pathLength = 0;
@@ -108,6 +104,10 @@ ExitStatus NearestNeighbourSolver::solveCPU() {
     environment.progress.store(100);
     
     return ExitStatus::SUCCESS;
+}
+
+ExitStatus NearestNeighbourSolver::prepareGPU() {
+    return ExitStatus::NOT_SUPPORTED;
 }
 
 ExitStatus NearestNeighbourSolver::solveGPU() {
