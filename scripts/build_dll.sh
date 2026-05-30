@@ -1,7 +1,12 @@
-PROJECT_ROOT="/home/louis/projects/TSP-Solver"
 
-cmake   -S "$PROJECT_ROOT"/c++ \
-        -B "$PROJECT_ROOT"/c++/build \
-        -DCMAKE_BUILD_TYPE=Release
+#!/bin/bash
+set -e
 
-cmake --build "$PROJECT_ROOT/c++/build" -j $(nproc)
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../config.sh"
+
+cmake -S "$CXX_DIR" \
+      -B "$CXX_DIR/build" \
+      -DCMAKE_BUILD_TYPE=Release
+
+cmake --build "$CXX_DIR/build" -j $(nproc)

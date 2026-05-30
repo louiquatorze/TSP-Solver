@@ -9,11 +9,17 @@ VulkanContext::VulkanContext() {
     createInstance();
     pickPhysicalDevice();
     createLogicalDevice();
+    createTransferCommandBuffer();
+
+    pipelines = TSPPipelines{};
+    pipelines.create(m_device);
 
     std::cout << "[C++] Vulkan Context successfully created.\n";  
 }
 
 VulkanContext::~VulkanContext() {
+    pipelines.destroyAll(m_device);
+
     if (m_device != VK_NULL_HANDLE)
         vkDestroyDevice(m_device, nullptr);
 
@@ -295,4 +301,122 @@ bool VulkanContext::checkValidationLayerSupport() {
         if (!layerFound) return false;
     }
     return true;
+}
+
+void VulkanContext::createTransferCommandBuffer() {
+    // Create a Transfer Command Pool
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.queueFamilyIndex = m_transferFamilyIndex;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    VkCommandPool transferCommandPool;
+    if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &transferCommandPool) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create transfer command pool");
+    }
+
+    // Allocate a Transfer Command Buffer
+    VkCommandBufferAllocateInfo allocInfo{};
+    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    allocInfo.commandPool = transferCommandPool;
+    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+    allocInfo.commandBufferCount = 1;
+
+    VkCommandBuffer transferCommandBuffer;
+    if (vkAllocateCommandBuffers(m_device, &allocInfo, &transferCommandBuffer) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create transfer command buffer");
+    }
+
+    // Create the Reusable Fence
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    // Leave flags as 0 so it starts unsignaled (ready to be submitted)
+
+    if (vkCreateFence(m_device, &fenceInfo, nullptr, &m_transferFence) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create transfer fence");
+    }
+}
+
+void VulkanContext::transferData(const std::vector<DataBuffer>& dataBuffers, const std::vector<const void*>& dataPtrs) {
+    if (dataBuffers.size() != dataPtrs.size()) return;
+
+    // Map and copy all data into their respective staging buffers first
+    for (size_t i = 0; i < dataBuffers.size(); ++i) {
+        void* mappedMemory = nullptr;
+        vkMapMemory(m_device, dataBuffers[i].stagingBufferMemory, 0, dataBuffers[i].bufferSize, 0, &mappedMemory);
+        std::memcpy(mappedMemory, dataPtrs[i], static_cast<size_t>(dataBuffers[i].bufferSize));
+        vkUnmapMemory(m_device, dataBuffers[i].stagingBufferMemory);
+    }
+
+    // Reset and start recording ONE command buffer for ALL copies
+    vkResetCommandBuffer(m_transferCommandBuffer, 0);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+    vkBeginCommandBuffer(m_transferCommandBuffer, &beginInfo);
+
+    // Queue up all copies sequentially in the same command stream
+    for (size_t i = 0; i < dataBuffers.size(); ++i) {
+        VkBufferCopy copyRegion{};
+        copyRegion.srcOffset = 0;
+        copyRegion.dstOffset = 0;
+        copyRegion.size = dataBuffers[i].bufferSize;
+
+        vkCmdCopyBuffer(m_transferCommandBuffer, dataBuffers[i].stagingBuffer, dataBuffers[i].deviceBuffer, 1, &copyRegion);
+    }
+
+    vkEndCommandBuffer(m_transferCommandBuffer);
+
+    // Submit everything together and wait ONCE
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_transferCommandBuffer;
+
+    vkResetFences(m_device, 1, &m_transferFence);
+    vkQueueSubmit(m_transferQueue, 1, &submitInfo, m_transferFence);
+    
+    // The GPU can now blast through all copies at maximum hardware bandwidth
+    vkWaitForFences(m_device, 1, &m_transferFence, VK_TRUE, UINT64_MAX);
+}
+
+void VulkanContext::retrieveData(const DataBuffer& dataBuffer, void* data_out) {
+    // 1. Reset and record the reverse copy command
+    vkResetCommandBuffer(m_transferCommandBuffer, 0);
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+
+    vkBeginCommandBuffer(m_transferCommandBuffer, &beginInfo);
+
+    // Copy from high-speed GPU memory back to the Host-Visible Staging Buffer
+    VkBufferCopy copyRegion{};
+    copyRegion.srcOffset = 0;
+    copyRegion.dstOffset = 0;
+    copyRegion.size = dataBuffer.bufferSize;
+
+    vkCmdCopyBuffer(m_transferCommandBuffer, dataBuffer.deviceBuffer, dataBuffer.stagingBuffer, 1, &copyRegion);
+
+    vkEndCommandBuffer(m_transferCommandBuffer);
+
+    // 2. Submit to the Transfer Queue and wait
+    VkSubmitInfo submitInfo{};
+    submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers = &m_transferCommandBuffer;
+
+    vkResetFences(m_device, 1, &m_transferFence);
+    vkQueueSubmit(m_transferQueue, 1, &submitInfo, m_transferFence);
+    vkWaitForFences(m_device, 1, &m_transferFence, VK_TRUE, UINT64_MAX);
+
+    // 3. Map the staging buffer memory and read it out to the CPU pointer
+    void* mappedMemory = nullptr;
+    if (vkMapMemory(m_device, dataBuffer.stagingBufferMemory, 0, dataBuffer.bufferSize, 0, &mappedMemory) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to map staging buffer for retrieval");
+    }
+    
+    std::memcpy(data_out, mappedMemory, static_cast<size_t>(dataBuffer.bufferSize));
+    vkUnmapMemory(m_device, dataBuffer.stagingBufferMemory);
 }

@@ -1,2 +1,14 @@
 
-VK_ICD_FILENAMES=/usr/share/vulkan/icd.d/dzn_icd.json DZN_DEBUG=adapter python3 python/main.py
+#!/bin/bash
+set -e
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+
+echo "Building DLL..."
+$SCRIPT_DIR/build_dll.sh
+
+echo "Compiling Shaders..."
+$SCRIPT_DIR/compile_shaders.sh
+
+echo "Executing."
+$SCRIPT_DIR/execute.sh

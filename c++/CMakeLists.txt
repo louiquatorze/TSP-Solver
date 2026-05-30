@@ -9,12 +9,13 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Vulkan REQUIRED)
 
 add_library(TSPSolver SHARED 
-    src/interface.cpp
-    src/Context.cpp
     src/ComputeTSP.cpp
+    src/Context.cpp
+    src/GraphUtil.cpp
+    src/interface.cpp
+    src/PathService.cpp
     src/Timer.cpp
     src/TSPSolverFactory.cpp
-    src/GraphUtil.cpp
     
     src/solvers/TSPSolver.cpp 
     src/solvers/IterativeSolver.cpp 
@@ -22,7 +23,9 @@ add_library(TSPSolver SHARED
     src/solvers/AntColonySolver.cpp 
     src/solvers/ChristofidesSolver.cpp
 
+    src/vulkan/TSPPipelines.cpp
     src/vulkan/VulkanContext.cpp
+    src/vulkan/VulkanService.cpp
 )
 
 include(FetchContent)

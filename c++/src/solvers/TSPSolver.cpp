@@ -23,7 +23,7 @@ ExitStatus TSPSolver::solve() {
     std::function<ExitStatus()> prepare, solve;
 
     if (algorithmSettings.gpu) {
-        prepare = [&](){ return prepareGPU(); };
+        prepare = [&]() { return prepareGPU(); };
         solve = [&](){ return solveGPU(); };
     } else {
         prepare = [&](){ return prepareCPU(); };
@@ -32,12 +32,10 @@ ExitStatus TSPSolver::solve() {
 
     ExitStatus exitStatus = Timer::time(prepare, solutionData_out.preparationTime_ns);
 
-    if (exitStatus != ExitStatus::SUCCESS) {
+    if (exitStatus != ExitStatus::SUCCESS) {        
         std::cerr << "[C++ Error] Preparation failed" << std::endl;
         return exitStatus;
     }
-
-
     
     return Timer::time(solve, solutionData_out.solutionTime_ns);
 }

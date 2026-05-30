@@ -21,6 +21,10 @@ a.out
 *.so
 *.dylib
 
+# Compiled Shaders
+shaders/compiled/
+*.spv
+
 # ==========================================
 # Python Junk
 # ==========================================
