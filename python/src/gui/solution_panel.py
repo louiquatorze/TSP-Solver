@@ -36,7 +36,8 @@ class SolutionPanel(QWidget):
 
         self.final_len_label.setStyleSheet("color: #00d4ff; font-weight: bold; font-size: 14px;")
         self.total_time_label.setStyleSheet("color: #f1c40f; font-weight: bold;") # Highlight total
-        
+        self.optimal_len_label.setStyleSheet("color: #2ecc71")
+
         self.clear_all()
 
     def _add_section(self, text):
@@ -69,7 +70,6 @@ class SolutionPanel(QWidget):
         else:
             self.exit_status_label.setStyleSheet("color: #e74c3c")
 
-
     def set_solution_data(self, solution_data):
         """Processes the SolutionData struct from C++ DLL."""
         # Convert ns to s for all metrics
@@ -89,6 +89,12 @@ class SolutionPanel(QWidget):
         if hasattr(solution_data, 'optimalLength') and solution_data.optimalLength > 0:
             acc = (solution_data.optimalLength / solution_data.pathLength) * 100
             self.accuracy_label.setText(f"{acc:.2f}%")
+
+    def set_optimal_path_length(self, opt_path_length):
+        self.optimal_len_label.setText(f"{opt_path_length:.4f}s")
+
+    def set_accuracy(self, accuracy):
+        self.accuracy_label.setText(f"{accuracy:.4f}s")
 
     def clear_all(self):
         self.exit_status_label.setText("-")
