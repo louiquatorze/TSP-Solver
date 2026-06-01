@@ -132,6 +132,14 @@ class TSPParser:
 
             tsp_parsed.opt_path_indices[tsp_parsed.dimension] = tsp_parsed.opt_path_indices[0]
         
+        tsp_parsed.opt_path_length = 0
+
+        for i in range(dim - 1):
+            curr = tsp_parsed.opt_path_indices[i]
+            next = tsp_parsed.opt_path_indices[i + 1]
+
+            tsp_parsed.opt_path_length += tsp_parsed.get_weight(curr, next)
+
         # For simplicity; No actual enforcement of name singularity implemented
         tsp_parsed.id = tsp_parsed.name
 

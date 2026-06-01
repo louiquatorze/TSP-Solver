@@ -13,6 +13,7 @@ class Controller(QObject):
         super().__init__()
 
         self.tsp_parsed = None
+        self.tsp_metadata = None
 
         self.view = MainWindow(title="TSP Solver")
         self.view.show()
@@ -69,6 +70,7 @@ class Controller(QObject):
 
         self.view.set_progress(0)
         self.view.set_status(WorkStatus.Idle)
+        self.view.set_opt_path(self.tsp_metadata.optimal_path_length)
         self.view.clear_solution_panel()
 
         self.view.set_cities(display_data)
