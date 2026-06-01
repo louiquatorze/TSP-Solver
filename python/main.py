@@ -42,8 +42,3 @@ if __name__ == "__main__":
     finally:
         if controller is not None:
             controller.cleanup()
-        
-        print("Exiting.")
-
-        import os
-        os._exit(0)

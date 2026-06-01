@@ -18,14 +18,13 @@ VulkanContext::VulkanContext() {
 }
 
 VulkanContext::~VulkanContext() {
-    if (m_device != VK_NULL_HANDLE) {
-        pipelines.destroyAll(m_device);
-        vkDestroyDevice(m_device, nullptr);
-    }
+    pipelines.destroyAll(m_device);
 
-    if (m_instance != VK_NULL_HANDLE) {
+    if (m_device != VK_NULL_HANDLE)
+        vkDestroyDevice(m_device, nullptr);
+
+    if (m_instance != VK_NULL_HANDLE)
         vkDestroyInstance(m_instance, nullptr);
-    }
 
     std::cout << "[C++] Vulkan Context successfully destroyed.\n";    
 }

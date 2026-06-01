@@ -6,7 +6,7 @@
 class IterativeSolver : public TSPSolver {
 public:
     IterativeSolver() = delete;
-    IterativeSolver(Environment&, VulkanContext&, AlgorithmSettings&, TSP&, SolutionData&);
+    IterativeSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
     ~IterativeSolver();
 
     void print() override;

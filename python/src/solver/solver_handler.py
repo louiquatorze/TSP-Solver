@@ -134,7 +134,7 @@ class SolverHandler(QObject):
             self.solver_thread = None
 
         def cleanup_solver_worker():
-            if not self.solver_worker:
+            if not  self.solver_worker:
                 self.solver_worker.deleteLater()
                 self.solver_worker = None
             

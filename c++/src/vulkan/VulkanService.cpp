@@ -89,28 +89,24 @@ void VulkanService::createBuffer(VkDevice device, VkPhysicalDevice physicalDevic
     vkBindBufferMemory(device, buffer_out, bufferMemory_out, 0);
 }
 
-void VulkanService::createBindlessDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout) {
-    VkDescriptorSetLayoutBinding binding{};
-    binding.binding = 0;
-    binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    binding.descriptorCount = 1000; 
-    binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-
-    VkDescriptorBindingFlags bindingFlags = 
-        VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | 
-        VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT;
-
-    VkDescriptorSetLayoutBindingFlagsCreateInfo extendedInfo{};
-    extendedInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    extendedInfo.bindingCount = 1;
-    extendedInfo.pBindingFlags = &bindingFlags;
+void VulkanService::createDescriptorSetLayout(VkDevice device, const std::vector<i32> bindings, VkDescriptorSetLayout& descriptorSetLayout) {
+    // Define data binding descriptors
+    i32 bindingCount = bindings.size();
+    std::vector<VkDescriptorSetLayoutBinding> bindingDescriptors(bindingCount);
+    for (i32 i = 0; i < bindingCount; i++) {
+        auto& b = bindingDescriptors[i];
+        b.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        b.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
+        b.binding = bindings[i];
+        b.descriptorCount = 1;
+        b.pImmutableSamplers = nullptr;
+    }
 
     // Create layout with bindings 
     VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo{};
     descriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorLayoutInfo.pNext = &extendedInfo;
-    descriptorLayoutInfo.pBindings = &binding;
-    descriptorLayoutInfo.bindingCount = 1;
+    descriptorLayoutInfo.pBindings = bindingDescriptors.data();
+    descriptorLayoutInfo.bindingCount = bindingCount;
     descriptorLayoutInfo.flags = 0;
 
     if (vkCreateDescriptorSetLayout(device, &descriptorLayoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
@@ -118,8 +114,32 @@ void VulkanService::createBindlessDescriptorSetLayout(VkDevice device, VkDescrip
     }
 }
 
-void VulkanService::createPipelineLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout, 
-                                         i32 pushConstantRangeSize, VkPipelineLayout& pipelineLayout_out) {
+void VulkanService::createComputePipeline(VkDevice device, const std::string& spirvFileName, const std::string& entryName, 
+                                          i32 pushConstantRangeSize, VkDescriptorSetLayout& descriptorSetLayout, 
+                                          ComputePipeline& computePipeline_out) {
+    auto& pipelineLayout      = computePipeline_out.pipelineLayout;
+    auto& pipeline            = computePipeline_out.pipeline;
+
+    if (descriptorSetLayout == VK_NULL_HANDLE) {
+        throw std::runtime_error("Descriptor set layout must be initialized before creating pipeline.");
+    }
+
+    // Read spir-v file
+    std::vector<u32> spirv = readSPIRVFile(spirvFileName);
+
+    // Create shader module
+    VkShaderModuleCreateInfo shaderModelInfo{};
+    shaderModelInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+    shaderModelInfo.pNext = nullptr;    
+    shaderModelInfo.codeSize = spirv.size() * sizeof(u32);
+    shaderModelInfo.pCode = spirv.data();
+
+    VkShaderModule computeShaderModule;
+    if (vkCreateShaderModule(device, &shaderModelInfo, nullptr, &computeShaderModule) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create shader module.");
+    }
+
+    // Create pipeline layout 
     VkPushConstantRange pushConstantRange;
     bool hasPushConstant = pushConstantRangeSize != 0;
 
@@ -139,27 +159,9 @@ void VulkanService::createPipelineLayout(VkDevice device, VkDescriptorSetLayout&
     pipelineLayoutInfo.setLayoutCount = 1;
     pipelineLayoutInfo.flags = 0;
 
-    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout_out) != VK_SUCCESS) {
+    if (vkCreatePipelineLayout(device, &pipelineLayoutInfo, nullptr, &pipelineLayout) != VK_SUCCESS) {
+        vkDestroyShaderModule(device, computeShaderModule, nullptr);
         throw std::runtime_error("Failed to create pipeline layout.");
-    }
-}
-
-void VulkanService::createPipeline(VkDevice device, const std::string& spirvFileName, const std::string& entryName,
-                                   VkDescriptorSetLayout& descriptorSetLayout,  VkPipelineLayout& pipelineLayout,
-                                   VkPipeline& pipeline_out) {
-    // Read spir-v file
-    std::vector<u32> spirv = readSPIRVFile(spirvFileName);
-
-    // Create shader module
-    VkShaderModuleCreateInfo shaderModelInfo{};
-    shaderModelInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-    shaderModelInfo.pNext = nullptr;    
-    shaderModelInfo.codeSize = spirv.size() * sizeof(u32);
-    shaderModelInfo.pCode = spirv.data();
-
-    VkShaderModule computeShaderModule;
-    if (vkCreateShaderModule(device, &shaderModelInfo, nullptr, &computeShaderModule) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create shader module.");
     }
 
     // Configure shader stage
@@ -181,12 +183,21 @@ void VulkanService::createPipeline(VkDevice device, const std::string& spirvFile
     pipelineInfo.basePipelineIndex = 0;
     pipelineInfo.flags = 0;
 
-    if (vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, &pipeline_out) != VK_SUCCESS) {
+    if (vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS) {
         vkDestroyShaderModule(device, computeShaderModule, nullptr);
         throw std::runtime_error("Failed to bake compute pipeline.");
     }
 
     vkDestroyShaderModule(device, computeShaderModule, nullptr);
+}
+
+void VulkanService::destroyComputePipelineFamily(VkDevice device, ComputePipelineFamily& pipelineFamily) {
+    for (ComputePipeline p : pipelineFamily.pipelines) {
+        vkDestroyPipeline(device, p.pipeline, nullptr);
+        vkDestroyPipelineLayout(device, p.pipelineLayout, nullptr);
+    }
+
+    vkDestroyDescriptorSetLayout(device, pipelineFamily.descriptorSetLayout, nullptr);
 }
 
 std::vector<u32> VulkanService::readSPIRVFile(const std::string& fileName) {

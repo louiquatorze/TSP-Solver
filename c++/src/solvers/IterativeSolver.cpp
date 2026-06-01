@@ -6,8 +6,8 @@
 #include <cmath>
 #include <Util.h>
 
-IterativeSolver::IterativeSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out)
+IterativeSolver::IterativeSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
 { }
 
 IterativeSolver::~IterativeSolver() {
@@ -26,6 +26,10 @@ ExitStatus IterativeSolver::prepareCPU() {
     indices = new u16[tsp.dimension + 1];
     swaps = new u16[tsp.dimension + 1];
         
+    return ExitStatus::SUCCESS;
+}
+
+ExitStatus IterativeSolver::prepareGPU() {
     return ExitStatus::SUCCESS;
 }
 
@@ -151,10 +155,6 @@ ExitStatus IterativeSolver::solveCPU() {
     environment.progress.store(100);
     solutionData_out.pathLength = minLength;
     
-    return ExitStatus::SUCCESS;
-}
-
-ExitStatus IterativeSolver::prepareGPU() {
     return ExitStatus::SUCCESS;
 }
 
