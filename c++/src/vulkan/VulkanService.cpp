@@ -1,5 +1,5 @@
 
-#include "VulkanService.h"
+#include "VulkanService.hpp"
 
 #include <stdexcept>
 #include <cstring>
@@ -89,7 +89,7 @@ void VulkanService::createBuffer(VkDevice device, VkPhysicalDevice physicalDevic
     vkBindBufferMemory(device, buffer_out, bufferMemory_out, 0);
 }
 
-void VulkanService::createBindlessDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout) {
+void VulkanService::createDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout) {
     VkDescriptorSetLayoutBinding binding{};
     binding.binding = 0;
     binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "TSPSolver.h"
-#include "AlgorithmSettings.h"
+#include "TSPSolver.hpp"
+#include "AlgorithmSettings.hpp"
 
 class TSPSolverFactory {
 public:

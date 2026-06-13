@@ -1,10 +1,10 @@
 
-#include "IterativeSolver.h"
+#include "IterativeSolver.hpp"
+#include "Util.hpp"
 
 #include <iostream>
 #include <iomanip>
 #include <cmath>
-#include <Util.h>
 
 IterativeSolver::IterativeSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
     : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)

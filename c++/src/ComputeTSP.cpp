@@ -1,9 +1,9 @@
 
-#include "ComputeTSP.h"
-#include "DistanceFunctions.h"
-#include "ExitStatus.h"
-#include "TSP.h"
-#include "TSPSetters.h"
+#include "ComputeTSP.hpp"
+#include "DistanceFunctions.hpp"
+#include "ExitStatus.hpp"
+#include "TSP.hpp"
+#include "TSPSetters.hpp"
 
 #include <memory.h>
 #include <cstring>

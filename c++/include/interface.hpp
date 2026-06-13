@@ -1,12 +1,12 @@
 
 #pragma once
 
-#include "AlgorithmSettings.h"
-#include "TSP.h"
-#include "TSPRaw.h"
-#include "SolutionData.h"
-#include "types.h"
-#include "Context.h"
+#include "AlgorithmSettings.hpp"
+#include "TSP.hpp"
+#include "TSPRaw.hpp"
+#include "SolutionData.hpp"
+#include "types.hpp"
+#include "Context.hpp"
 
 extern "C" {
     void* createContext();

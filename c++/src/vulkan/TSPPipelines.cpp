@@ -1,7 +1,7 @@
 
-#include "TSPPipelines.h"
-#include "VulkanService.h"
-#include "PathService.h"
+#include "TSPPipelines.hpp"
+#include "VulkanService.hpp"
+#include "PathService.hpp"
 
 #include <string>
 
@@ -16,8 +16,7 @@ void TSPPipelines::destroyAll(VkDevice device) {
 }
 
 void TSPPipelines::createIterativePipelineFamily(VkDevice device) {
-    iterative = new ComputePipelineFamily{};
-    iterative->pipelines = std::vector<VkPipeline>(1);
+    iterative = new ComputePipelineFamily(1);
 
     const auto filePath = PathService::getShaderCompiledDir() / "iterativeCS.spv";
     const std::string entryName = "main";
@@ -26,8 +25,7 @@ void TSPPipelines::createIterativePipelineFamily(VkDevice device) {
 }
 
 void TSPPipelines::createAntColonyPipelineFamily(VkDevice device) {
-    antColony = new ComputePipelineFamily{};
-    antColony->pipelines = std::vector<VkPipeline>(1);
+    antColony = new ComputePipelineFamily(1);
 
     const auto filePath = PathService::getShaderCompiledDir() / "antColonyCS.spv";
     const std::string entryName = "main";

@@ -26,6 +26,7 @@ add_library(TSPSolver SHARED
     src/vulkan/TSPPipelines.cpp
     src/vulkan/VulkanContext.cpp
     src/vulkan/VulkanService.cpp
+    src/vulkan/ComputePipelineFamily.cpp
 )
 
 include(FetchContent)

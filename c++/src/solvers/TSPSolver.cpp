@@ -1,10 +1,10 @@
 
-#include "TSPSolver.h"
+#include "TSPSolver.hpp"
 
-#include "IterativeSolver.h"
-#include "NearestNeighbourSolver.h"
-#include "AntColonySolver.h"
-#include "Timer.h"
+#include "IterativeSolver.hpp"
+#include "NearestNeighbourSolver.hpp"
+#include "AntColonySolver.hpp"
+#include "Timer.hpp"
 
 #include <chrono>
 #include <functional>

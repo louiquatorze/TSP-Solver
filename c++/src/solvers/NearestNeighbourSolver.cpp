@@ -1,5 +1,5 @@
 
-#include "NearestNeighbourSolver.h"
+#include "NearestNeighbourSolver.hpp"
 
 #include <iostream>
 #include <random>

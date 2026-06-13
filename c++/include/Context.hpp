@@ -1,10 +1,10 @@
 
 #pragma once
 
-#include "types.h"
-#include "Environment.h"
-#include "TSPSolver.h"
-#include "VulkanContext.h"
+#include "types.hpp"
+#include "Environment.hpp"
+#include "TSPSolver.hpp"
+#include "VulkanContext.hpp"
 
 typedef void (*ProgressCallback)(i32);
 

@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "DataBuffer.h"
-#include "types.h"
+#include "DataBuffer.hpp"
+#include "types.hpp"
 
 #include <vulkan/vulkan.h>
 #include <vector>
@@ -18,7 +18,7 @@ public:
                              VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
                              VkBuffer& buffer_out, VkDeviceMemory& bufferMemory_out);
 
-    static void createBindlessDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout_out);
+    static void createDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout_out);
     
     static void createPipelineLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout, 
                                      i32 pushConstantRangeSize, VkPipelineLayout& pipelineLayout_out);

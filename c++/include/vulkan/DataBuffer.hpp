@@ -4,7 +4,7 @@
 #include <vulkan/vulkan.h>
 
 struct DataBuffer {
-    VkDeviceSize bufferSize; 
+    VkDeviceSize   bufferSize; 
 
     VkBuffer       stagingBuffer;
     VkDeviceMemory stagingBufferMemory;

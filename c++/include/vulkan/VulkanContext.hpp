@@ -1,13 +1,12 @@
 
 #pragma once
 
-#include "DataBuffer.h"
-#include "TSPPipelines.h"
+#include "DataBuffer.hpp"
+#include "TSPPipelines.hpp"
 
 #include <vulkan/vulkan.h>
 #include <vector>
 #include <optional>
-#include <types.h>
 #include <memory>
 
 class VulkanContext {
@@ -26,7 +25,7 @@ private:
     void createInstance();
     void pickPhysicalDevice();
     void createLogicalDevice();
-
+    
     void createTransferCommandPool();
     void createTransferFence();
 
@@ -62,7 +61,6 @@ private:
 #else
     const bool m_enableValidationLayers = true;
 #endif
-
     // Stripped down handles (No surfaces or extra queues)
     VkInstance       m_instance             = VK_NULL_HANDLE;
     VkPhysicalDevice m_physicalDevice       = VK_NULL_HANDLE;

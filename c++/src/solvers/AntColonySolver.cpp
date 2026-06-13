@@ -1,6 +1,6 @@
 
-#include "AntColonySolver.h"
-#include "NearestNeighbourSolver.h"
+#include "AntColonySolver.hpp"
+#include "NearestNeighbourSolver.hpp"
 
 #include <iostream>
 #include <iomanip>

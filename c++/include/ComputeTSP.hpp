@@ -1,11 +1,11 @@
 
 #pragma once
 
-#include "TSP.h"
-#include "TSPRaw.h"
-#include "Environment.h"
-#include "ExitStatus.h"
-#include "AlgorithmSettings.h"
+#include "TSP.hpp"
+#include "TSPRaw.hpp"
+#include "Environment.hpp"
+#include "ExitStatus.hpp"
+#include "AlgorithmSettings.hpp"
 
 class ComputeTSP {
 public:

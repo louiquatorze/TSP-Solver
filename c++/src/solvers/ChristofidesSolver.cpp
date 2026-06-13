@@ -1,6 +1,6 @@
 
-#include "ChristofidesSolver.h"
-#include "GraphUtil.h"
+#include "ChristofidesSolver.hpp"
+#include "GraphUtil.hpp"
 
 #include <vector>
 #include <set>

@@ -1,12 +1,10 @@
 
-#include "interface.h"
-#include "ComputeTSP.h"
-#include "TSPSolverFactory.h"
-#include "ExitStatus.h"
-#include "Timer.h"
-#include "GraphUtil.h"
-
-#include "NearestNeighbourSolver.h"
+#include "interface.hpp"
+#include "ComputeTSP.hpp"
+#include "TSPSolverFactory.hpp"
+#include "ExitStatus.hpp"
+#include "Timer.hpp"
+#include "GraphUtil.hpp"
 
 #include <iostream>
 #include <cstring>

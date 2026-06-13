@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "ExitStatus.h"
-#include "types.h"
+#include "ExitStatus.hpp"
+#include "types.hpp"
 
 #include <functional>
 

@@ -1,5 +1,5 @@
 
-#include "GraphUtil.h"
+#include "GraphUtil.hpp"
 
 #include <vector>
 #include <random>

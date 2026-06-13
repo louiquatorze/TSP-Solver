@@ -1,8 +1,8 @@
 
 #pragma once
 
-#include "types.h"
-#include "AlgorithmSettings.h"
+#include "types.hpp"
+#include "AlgorithmSettings.hpp"
 
 #include <iostream>
 #include <iomanip>

@@ -1,10 +1,10 @@
 
-#include "TSPSolverFactory.h"
+#include "TSPSolverFactory.hpp"
 
-#include "IterativeSolver.h"
-#include "NearestNeighbourSolver.h"
-#include "AntColonySolver.h"
-#include "ChristofidesSolver.h"
+#include "IterativeSolver.hpp"
+#include "NearestNeighbourSolver.hpp"
+#include "AntColonySolver.hpp"
+#include "ChristofidesSolver.hpp"
 
 std::unique_ptr<TSPSolver> TSPSolverFactory::create(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out) {
     std::unique_ptr<TSPSolver> solver;

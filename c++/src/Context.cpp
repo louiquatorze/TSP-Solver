@@ -1,6 +1,6 @@
 
-#include "Context.h"
-#include "interface.h"
+#include "Context.hpp"
+#include "interface.hpp"
 
 #include <iostream>
 

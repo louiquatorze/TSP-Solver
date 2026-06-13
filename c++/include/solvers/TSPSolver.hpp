@@ -1,11 +1,11 @@
 
 #pragma once
 
-#include "AlgorithmSettings.h"
-#include "TSP.h"
-#include "SolutionData.h"
-#include "Environment.h"
-#include "ExitStatus.h"
+#include "AlgorithmSettings.hpp"
+#include "TSP.hpp"
+#include "SolutionData.hpp"
+#include "Environment.hpp"
+#include "ExitStatus.hpp"
 
 #include <functional>
 #include <memory>

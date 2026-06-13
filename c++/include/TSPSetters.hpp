@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "TSP.h"
+#include "TSP.hpp"
 
 #include <iostream>
 

@@ -1,7 +1,7 @@
 
 #pragma once    
 
-#include "ComputePipelineFamily.h"
+#include "ComputePipelineFamily.hpp"
 
 #include <vulkan/vulkan.h>
 

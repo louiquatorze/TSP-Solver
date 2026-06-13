@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "TSPSolver.h"
+#include "TSPSolver.hpp"
 
 class IterativeSolver : public TSPSolver {
 public:

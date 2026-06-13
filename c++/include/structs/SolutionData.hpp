@@ -1,7 +1,7 @@
 
 #pragma once
 
-#include "types.h"
+#include "types.hpp"
 
 extern "C" {
     struct SolutionData {
