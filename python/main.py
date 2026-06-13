@@ -33,9 +33,10 @@ if __name__ == "__main__":
 
         pg.setConfigOption('background', '#141414') 
         pg.setConfigOption('foreground', '#dcdcdc')
-        pg.setConfigOptions(antialias=False)
-
+        
         apply_dark_theme(app)
+
+        pg.setConfigOptions(antialias=False)
         controller = Controller()
 
         sys.exit(app.exec())
@@ -43,5 +44,4 @@ if __name__ == "__main__":
         if controller is not None:
             controller.cleanup()
 
-        import os
-        os._exit(0)
+        print("Done, exiting.")

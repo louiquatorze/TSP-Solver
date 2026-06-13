@@ -85,4 +85,5 @@ class Controller(QObject):
         self.view.set_opt_path(opt_path)
 
     def cleanup(self):
+        print("Cleaning up controller")
         self.handler.cleanup()

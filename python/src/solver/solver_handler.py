@@ -145,6 +145,8 @@ class SolverHandler(QObject):
             self.lib.destroyContext(self.context)
             self.context = None
         
+        print("Cleaning up handler")
+        
         cleanup_solver_thread()
         cleanup_solver_worker()
         cleanup_context()

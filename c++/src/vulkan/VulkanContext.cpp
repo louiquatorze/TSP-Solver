@@ -9,7 +9,12 @@ VulkanContext::VulkanContext() {
     createInstance();
     pickPhysicalDevice();
     createLogicalDevice();
-    createTransferCommandBuffer();
+
+    createTransferCommandPool();
+    createTransferFence();
+
+    createComputeCommandPool();
+    createComputeFence();
 
     pipelines = TSPPipelines{};
     pipelines.create(m_device);
@@ -18,7 +23,23 @@ VulkanContext::VulkanContext() {
 }
 
 VulkanContext::~VulkanContext() {
+    std::cout << "[C++] Destructing Vulkan Context\n";    
+
     pipelines.destroyAll(m_device);
+
+    if (m_transferFence != VK_NULL_HANDLE) 
+        vkDestroyFence(m_device, m_transferFence, nullptr);
+
+    if (m_transferCommandPool != VK_NULL_HANDLE) 
+        vkDestroyCommandPool(m_device, m_transferCommandPool, nullptr);
+
+
+    if (m_computeFence != VK_NULL_HANDLE) 
+        vkDestroyFence(m_device, m_computeFence, nullptr);
+
+    if (m_computeCommandPool != VK_NULL_HANDLE) 
+        vkDestroyCommandPool(m_device, m_computeCommandPool, nullptr);
+
 
     if (m_device != VK_NULL_HANDLE)
         vkDestroyDevice(m_device, nullptr);
@@ -303,37 +324,49 @@ bool VulkanContext::checkValidationLayerSupport() {
     return true;
 }
 
-void VulkanContext::createTransferCommandBuffer() {
-    // Create a Transfer Command Pool
+void VulkanContext::createTransferCommandPool() {
     VkCommandPoolCreateInfo poolInfo{};
     poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.pNext = nullptr;
     poolInfo.queueFamilyIndex = m_transferFamilyIndex;
-    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT | VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_TRANSIENT_BIT;
 
-    VkCommandPool transferCommandPool;
-    if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &transferCommandPool) != VK_SUCCESS) {
+    if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_transferCommandPool) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create transfer command pool");
     }
+}
 
-    // Allocate a Transfer Command Buffer
-    VkCommandBufferAllocateInfo allocInfo{};
-    allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-    allocInfo.commandPool = transferCommandPool;
-    allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-    allocInfo.commandBufferCount = 1;
-
-    VkCommandBuffer transferCommandBuffer;
-    if (vkAllocateCommandBuffers(m_device, &allocInfo, &transferCommandBuffer) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create transfer command buffer");
-    }
-
-    // Create the Reusable Fence
+void VulkanContext::createTransferFence() {
     VkFenceCreateInfo fenceInfo{};
     fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
-    // Leave flags as 0 so it starts unsignaled (ready to be submitted)
+    fenceInfo.pNext = nullptr;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
 
     if (vkCreateFence(m_device, &fenceInfo, nullptr, &m_transferFence) != VK_SUCCESS) {
         throw std::runtime_error("Failed to create transfer fence");
+    }
+}
+
+void VulkanContext::createComputeCommandPool() {
+    VkCommandPoolCreateInfo poolInfo{};
+    poolInfo.sType = VK_STRUCTURE_TYPE_COMMAND_POOL_CREATE_INFO;
+    poolInfo.pNext = nullptr;
+    poolInfo.queueFamilyIndex = m_computeFamilyIndex;
+    poolInfo.flags = VK_COMMAND_POOL_CREATE_RESET_COMMAND_BUFFER_BIT;
+
+    if (vkCreateCommandPool(m_device, &poolInfo, nullptr, &m_computeCommandPool) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create compute command pool");
+    }
+}
+
+void VulkanContext::createComputeFence() {
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = nullptr;
+    fenceInfo.flags = VK_FENCE_CREATE_SIGNALED_BIT;
+
+    if (vkCreateFence(m_device, &fenceInfo, nullptr, &m_computeFence) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to create compute fence");
     }
 }
 

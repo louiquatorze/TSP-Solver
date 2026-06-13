@@ -6,28 +6,13 @@
 #include <string>
 
 void TSPPipelines::create(VkDevice device) {
-    VulkanService::createBindlessDescriptorSetLayout(device, descriptorSetLayout);
-
-    i32 pushConstantsRangeSize = 4;
-    VulkanService::createPipelineLayout(device, descriptorSetLayout, pushConstantsRangeSize, pipelineLayout);
-
-    createIterativePipelineFamily(device);
-    createAntColonyPipelineFamily(device);
+    // createIterativePipelineFamily(device);
+    // createAntColonyPipelineFamily(device);
 }
 
 void TSPPipelines::destroyAll(VkDevice device) {
-    if (iterative) {
-        iterative->destroy(device);
-        delete iterative;
-    }
-    
-    if (antColony) {
-        antColony->destroy(device);
-        delete antColony;
-    }
-
-    vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-    vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+    // VulkanService::destroyComputePipelineFamily(device, iterative);
+    // VulkanService::destroyComputePipelineFamily(device, antColony);
 }
 
 void TSPPipelines::createIterativePipelineFamily(VkDevice device) {

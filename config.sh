@@ -1,9 +1,9 @@
 
 #!/bin/bash
+set -e
 
 # --- SHARED DIRECTORY PATHS ---
-export PROJECT_ROOT
-PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" 
+export PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" 
 
 # --- SHADER DEFINITIONS ---
 export SHADER_SRC_DIR="$PROJECT_ROOT/shaders"
@@ -15,6 +15,7 @@ export LIB_DIR="$PROJECT_ROOT/lib"
 
 # --- PYTHON DEFINITIONS ---
 export PYTHON_DIR="$PROJECT_ROOT/python"
+export PYTHON_VENV="$PYTHON_DIR/.venv"
 
 # --- TSP-Data DEFINITIONS ---
 export DATA_DIR="$PROJECT_ROOT/data"

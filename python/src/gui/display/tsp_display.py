@@ -41,7 +41,7 @@ class TSPDisplay(pg.PlotWidget):
             pen=pg.mkPen(None), # No border around dots
             brush=pg.mkBrush('#ff9f43'),
             pxMode=True,
-            size=4, 
+            size=6, 
         )
 
         # Button to hide/show opt path

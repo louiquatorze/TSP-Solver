@@ -26,7 +26,12 @@ private:
     void createInstance();
     void pickPhysicalDevice();
     void createLogicalDevice();
-    void createTransferCommandBuffer();
+
+    void createTransferCommandPool();
+    void createTransferFence();
+
+    void createComputeCommandPool();
+    void createComputeFence();
     
     void transferData(const std::vector<DataBuffer>& dataBuffers, const std::vector<const void*>& dataPtrs);
     void retrieveData(const DataBuffer& dataBuffer, void* data_out);
@@ -64,12 +69,17 @@ private:
     VkDevice         m_device               = VK_NULL_HANDLE;
     VkQueue          m_computeQueue         = VK_NULL_HANDLE;
     VkQueue          m_transferQueue        = VK_NULL_HANDLE;
+
     u32              m_computeFamilyIndex   = 0;
     u32              m_transferFamilyIndex  = 0;
 
     VkFence         m_transferFence         = VK_NULL_HANDLE;
     VkCommandPool   m_transferCommandPool   = VK_NULL_HANDLE;
     VkCommandBuffer m_transferCommandBuffer = VK_NULL_HANDLE;
+
+    VkFence         m_computeFence         = VK_NULL_HANDLE;
+    VkCommandPool   m_computeCommandPool   = VK_NULL_HANDLE;
+    VkCommandBuffer m_computeCommandBuffer = VK_NULL_HANDLE;
     
     VkDescriptorSetLayout m_descriptorSetLayout = VK_NULL_HANDLE;
     VkPipelineLayout      m_pipelineLayout      = VK_NULL_HANDLE;
