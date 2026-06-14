@@ -3,7 +3,7 @@
 
 #include "VulkanCore.hpp"
 #include "VulkanEngine.hpp"
-#include "VulkanTSPManager.hpp"
+#include "VulkanTSPResourceManager.hpp"
 
 class VulkanContext {
 public:
@@ -14,7 +14,7 @@ public:
     VulkanContext& operator=(const VulkanContext&) = delete;
 private:
     // Engine and Manager rely on Core, so declare first
-    std::unique_ptr<VulkanCore>       core;
-    std::unique_ptr<VulkanEngine>     engine;
-    std::unique_ptr<VulkanTSPManager> manager;
+    std::unique_ptr<VulkanCore>               core;
+    std::unique_ptr<VulkanEngine>             engine;
+    std::unique_ptr<VulkanTSPResourceManager> manager;
 };

@@ -30,8 +30,9 @@ add_library(TSPSolver SHARED
 
     src/vulkan/engine/VulkanCore.cpp
     src/vulkan/engine/VulkanEngine.cpp
-    src/vulkan/engine/TSPDescriptorSet.cpp
+    src/vulkan/engine/VulkanTSPResourceManager.cpp
 
+    src/vulkan/engine/management/TSPDescriptorSetBundle.cpp
     src/vulkan/engine/management/VulkanTSPPipelineManager.cpp
     src/vulkan/engine/management/VulkanTSPMemoryManager.cpp
 )
