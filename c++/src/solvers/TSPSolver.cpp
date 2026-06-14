@@ -11,11 +11,12 @@
 #include <iostream>
 #include <vulkan/vulkan.h>
 
-TSPSolver::TSPSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out) :
+TSPSolver::TSPSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags) :
     environment(environment),
     algorithmSettings(algorithmSettings),
     tsp(tsp),
-    solutionData_out(solutionData_out)
+    solutionData_out(solutionData_out),
+    analyticFlags(analyticFlags)
 { }
 
 ExitStatus TSPSolver::solve() {

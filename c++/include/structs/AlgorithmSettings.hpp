@@ -20,7 +20,7 @@ extern "C" {
 
         // Nearest Neighbour
         i32 startIndex;
-
+        
         // Ant Colony System
         i32 antCount;
         i32 iterations;

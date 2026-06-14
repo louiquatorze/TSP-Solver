@@ -9,24 +9,31 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 find_package(Vulkan REQUIRED)
 
 add_library(TSPSolver SHARED 
-    src/ComputeTSP.cpp
     src/Context.cpp
-    src/GraphUtil.cpp
     src/interface.cpp
-    src/PathService.cpp
-    src/Timer.cpp
-    src/TSPSolverFactory.cpp
     
+    src/util/GraphUtil.cpp
+    src/util/PathService.cpp
+    src/util/Timer.cpp
+    
+    src/preprocessing/ComputeTSP.cpp
+
     src/solvers/TSPSolver.cpp 
+    src/solvers/TSPSolverFactory.cpp
     src/solvers/IterativeSolver.cpp 
     src/solvers/NearestNeighbourSolver.cpp 
     src/solvers/AntColonySolver.cpp 
     src/solvers/ChristofidesSolver.cpp
 
-    src/vulkan/TSPPipelines.cpp
     src/vulkan/VulkanContext.cpp
     src/vulkan/VulkanService.cpp
-    src/vulkan/ComputePipelineFamily.cpp
+
+    src/vulkan/engine/VulkanCore.cpp
+    src/vulkan/engine/VulkanEngine.cpp
+    src/vulkan/engine/TSPDescriptorSet.cpp
+
+    src/vulkan/engine/management/VulkanTSPPipelineManager.cpp
+    src/vulkan/engine/management/VulkanTSPMemoryManager.cpp
 )
 
 include(FetchContent)
@@ -39,9 +46,14 @@ FetchContent_MakeAvailable(magic_enum)
 
 target_include_directories(TSPSolver PUBLIC 
     include
+    include/preprocessing
+    include/util
     include/solvers
     include/structs
+
     include/vulkan
+    include/vulkan/engine
+    include/vulkan/engine/management
 )
 set_target_properties(TSPSolver PROPERTIES LIBRARY_OUTPUT_DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/../lib")
 

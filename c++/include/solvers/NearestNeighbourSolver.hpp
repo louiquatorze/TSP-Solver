@@ -6,7 +6,7 @@
 class NearestNeighbourSolver : public TSPSolver {
 public:
     NearestNeighbourSolver() = delete;
-    NearestNeighbourSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
+    NearestNeighbourSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&, u32);
     ~NearestNeighbourSolver() = default;
 
     void print() override;

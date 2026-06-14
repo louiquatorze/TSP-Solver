@@ -13,24 +13,27 @@ from src.solver.structs.tsp_raw import TSPRaw
 from src.solver.structs.solution_data import SolutionData
 from src.solver.work_status import WorkStatus
 from src.solver.exit_status import ExitStatus
+from src.solver.analytics import Analytics
 
 class SolverHandler(QObject):
     solve = Signal(dict)
     solved = Signal(SolutionData, ExitStatus)
     status = Signal(WorkStatus)
+
+    poll_state = Signal()
     progress = Signal(int)
-    poll_progress = Signal()
     
     def __init__(self):
         super().__init__()
 
         self.solving = False
-        
+        self.active_poll_tasks = []
+
         self._init_lib()
         self._init_context()
         self._init_solver_worker_thread()
 
-        self.poll_progress.connect(self._on_poll_progress)
+        self.poll_state.connect(self._on_poll_state)
 
     def _init_lib(self):
         lib_path = os.path.join(PROJECT_ROOT_DIR, "lib/libTSPSolver.so")
@@ -89,14 +92,42 @@ class SolverHandler(QObject):
         self.solving = True
         self.solve_queued = False
         self.solve.emit(self.settings)
-        self.poll_progress.emit()
 
-    def _on_poll_progress(self):
+        self.update_active_poll_tasks(self.settings["analytics_flags"])
+        self.poll_state.emit()
+
+    def update_active_poll_tasks(self, analytics_flags):
+        self.active_poll_tasks = []
+
+        if analytics_flags & Analytics.Progress.value:
+            self.active_poll_tasks.append(self._poll_progress)
+        if analytics_flags & Analytics.CurrentBestLength.value:
+            self.active_poll_tasks.append(self._poll_cbl)
+        if analytics_flags & Analytics.CurrentBestPath.value:
+            self.active_poll_tasks.append(self._poll_cbp)
+        if analytics_flags & Analytics.LastIterationBest.value:
+            self.active_poll_tasks.append(self._poll_lib)
+
+    def _on_poll_state(self):
         if not self.solving:
             return
         
+        for task in self.active_poll_tasks:
+            task()
+        
+        QTimer.singleShot(80, self._on_poll_state)
+
+    def _poll_progress(self):
         self.progress.emit(int(self.lib.getProgress(self.context)))
-        QTimer.singleShot(80, self._on_poll_progress)
+
+    def _poll_cbl():
+        pass
+
+    def _poll_cbp():
+        pass
+
+    def _poll_lib():
+        pass
             
     def interrupt(self):
         self.lib.setInterrupt(self.context, ctypes.c_bool(True))
@@ -146,7 +177,7 @@ class SolverHandler(QObject):
             self.context = None
         
         print("Cleaning up handler")
-        
+
         cleanup_solver_thread()
         cleanup_solver_worker()
         cleanup_context()

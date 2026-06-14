@@ -9,6 +9,7 @@
 #include <iostream>
 #include <cstring>
 #include <chrono>
+#include <magic_enum.hpp>
 
 extern "C" {
     void* createContext() {
@@ -67,7 +68,7 @@ extern "C" {
         return exitStatus;
     }
 
-    i32 solveTSP(void* handle, AlgorithmSettings* algorithmSettings, TSP* tsp, SolutionData* solutionData_out){
+    i32 solveTSP(void* handle, AlgorithmSettings* algorithmSettings, TSP* tsp, SolutionData* solutionData_out, u32 analyticFlags){
         if (handle == nullptr)
             return ExitStatus::ERROR_INVALID_HANDLE;
             
@@ -78,9 +79,21 @@ extern "C" {
         std::cout << "[C++] GPU: " << algorithmSettings->gpu << std::endl;
         std::cout << "[C++] Dimension: " << tsp->dimension << std::endl;
 
+        std::cout << "[C++] Analytics: ";
+        
+        u32 pow = 1;
+        while (pow <= Analytics::All) {
+            if (pow & analyticFlags)
+                std::cout << magic_enum::enum_name(static_cast<Analytics>(pow)) << ", ";
+
+            pow <<= 1;
+        }
+
+        std::cout << std::endl;
+
         auto context = static_cast<Context*>(handle);
 
-        context->solver = TSPSolverFactory::create(context->environment, *algorithmSettings, *tsp, *solutionData_out);
+        context->solver = TSPSolverFactory::create(context->environment, *algorithmSettings, *tsp, *solutionData_out, analyticFlags);
 
         context->solver->print();
         ExitStatus exitStatus = context->solver->solve();

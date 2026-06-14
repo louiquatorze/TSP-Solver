@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include "DataBuffer.hpp"
 #include "types.hpp"
 
 #include <vulkan/vulkan.h>
@@ -10,14 +9,6 @@
 
 class VulkanService {
 public:
-    static void createDataBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size, DataBuffer& dataBuffer);
-
-    static void destroyDataBuffer(VkDevice device, DataBuffer& dataBuffer);
-
-    static void createBuffer(VkDevice device, VkPhysicalDevice physicalDevice, VkDeviceSize size,
-                             VkBufferUsageFlags usage, VkMemoryPropertyFlags properties, 
-                             VkBuffer& buffer_out, VkDeviceMemory& bufferMemory_out);
-
     static void createDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout_out);
     
     static void createPipelineLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout, 

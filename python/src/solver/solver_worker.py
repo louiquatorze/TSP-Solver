@@ -12,6 +12,7 @@ from src.solver.exit_status import ExitStatus
 from src.solver.work_status import WorkStatus
 from src.solver.structs.algorithm_settings import AlgorithmSettings
 from src.solver.tsp_cache import TSPCache
+from src.solver.analytics import Analytics
 
 class SolverWorker(QObject):
     finished = Signal(SolutionData, ExitStatus)
@@ -29,6 +30,7 @@ class SolverWorker(QObject):
     def solve(self, settings):
         algorithm_settings = settings["algorithm_settings"]
         tsp_parsed = settings["tsp_parsed"]
+        analytics_flags = settings["analytics_flags"]
 
         # Create solution data output buffer
 
@@ -114,7 +116,8 @@ class SolverWorker(QObject):
             self.context, 
             ctypes.byref(algorithm_settings), 
             ctypes.byref(tsp_buffer),       
-            ctypes.byref(solution_data_buffer)
+            ctypes.byref(solution_data_buffer),
+            ctypes.c_uint32(analytics_flags)
         )        
         exit_status = ExitStatus(exit_status)
 

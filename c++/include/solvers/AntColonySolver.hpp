@@ -8,7 +8,7 @@
 class AntColonySolver : public TSPSolver {    
 public:
     AntColonySolver() = delete;
-    AntColonySolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
+    AntColonySolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&, u32);
     ~AntColonySolver();
 
     void print() override;
@@ -27,7 +27,7 @@ private:
 
     i32* visited    = nullptr;
     f32* pheromones = nullptr;
-
+    
     f32* probabilisticWeights   = nullptr;
     i64* pathLenghts            = nullptr;
 

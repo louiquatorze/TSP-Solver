@@ -6,8 +6,8 @@
 #include <set>
 #include <limits>
 
-ChristofidesSolver::ChristofidesSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+ChristofidesSolver::ChristofidesSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 ChristofidesSolver::~ChristofidesSolver() { }
@@ -130,8 +130,8 @@ ExitStatus ChristofidesSolver::solveCPU() {
         solutionData_out.pathIndices[outIdx++] = ep;
         visited[ep] = true;
     }
-
-    environment.progress.store(100);
+    
+    environment.updateProgress(100);
     return ExitStatus::SUCCESS;
 }
 

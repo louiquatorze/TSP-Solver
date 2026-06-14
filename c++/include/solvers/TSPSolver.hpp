@@ -6,6 +6,7 @@
 #include "SolutionData.hpp"
 #include "Environment.hpp"
 #include "ExitStatus.hpp"
+#include "Analytics.hpp"
 
 #include <functional>
 #include <memory>
@@ -13,13 +14,15 @@
 class TSPSolver {
 public:
     TSPSolver() = delete;
-    TSPSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&);
+    TSPSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&, u32);
     virtual ~TSPSolver() = default;
 
     ExitStatus solve();
     virtual void print() = 0;
 
 protected:
+    const u32 analyticFlags;
+
     virtual ExitStatus prepareCPU() = 0;
     virtual ExitStatus prepareGPU() = 0;
 

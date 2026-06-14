@@ -6,8 +6,8 @@
 #include <iomanip>
 #include <cmath>
 
-IterativeSolver::IterativeSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+IterativeSolver::IterativeSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 IterativeSolver::~IterativeSolver() {
@@ -34,7 +34,7 @@ ExitStatus IterativeSolver::prepareGPU() {
 }
 
 ExitStatus IterativeSolver::solveCPU() {
-    environment.progress.store(0);
+    environment.updateProgress(0);
 
     i64 length = 0;
     i64 minLength = 0;
@@ -73,8 +73,10 @@ ExitStatus IterativeSolver::solveCPU() {
         if (environment.interrupt)
             return ExitStatus::INTERRUPTED;
         
-        double progress = 100 * static_cast<double>(permutations) / static_cast<double>(totalPermutations);
-        environment.progress.store(static_cast<i32>(progress));
+        if (analyticFlags & Analytics::Progress) {
+            double progress = 100 * static_cast<double>(permutations) / static_cast<double>(totalPermutations);
+            environment.updateProgress(static_cast<i32>(progress));
+        }
 
         u128 remaining = totalPermutations - permutations;
         if (its > remaining)
@@ -152,7 +154,7 @@ ExitStatus IterativeSolver::solveCPU() {
         permutations += its;
     }
 
-    environment.progress.store(100);
+    environment.updateProgress(100);
     solutionData_out.pathLength = minLength;
     
     return ExitStatus::SUCCESS;

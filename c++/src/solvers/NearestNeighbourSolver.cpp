@@ -5,8 +5,8 @@
 #include <random>
 #include <vector>
 
-NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 ExitStatus NearestNeighbourSolver::getPathLength(Environment& environment, TSP& tsp, i64& length_out) {
@@ -66,7 +66,7 @@ ExitStatus NearestNeighbourSolver::solveCPU() {
     i32* visited = solutionData_out.pathIndices;
     solutionData_out.pathLength = 0;
 
-    environment.progress.store(0);
+    environment.updateProgress(0);
 
     // Make sure first index is at the start
     std::swap(visited[0], visited[algorithmSettings.startIndex]);
@@ -78,7 +78,8 @@ ExitStatus NearestNeighbourSolver::solveCPU() {
         if (environment.interrupt)
             return ExitStatus::INTERRUPTED;
 
-        environment.progress.store(100 * visitedCount / tsp.dimension);
+        if (analyticFlags & Analytics::Progress)
+            environment.updateProgress(100 * visitedCount / tsp.dimension);
 
         i32 remaining = tsp.dimension - visitedCount;
         if (its > remaining)
@@ -105,7 +106,7 @@ ExitStatus NearestNeighbourSolver::solveCPU() {
     }
 
     solutionData_out.pathLength += tsp.ew(solutionData_out.pathIndices[0], solutionData_out.pathIndices[tsp.dimension - 1]);
-    environment.progress.store(100);
+    environment.updateProgress(100);
     
     return ExitStatus::SUCCESS;
 }

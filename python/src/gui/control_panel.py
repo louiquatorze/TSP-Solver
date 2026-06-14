@@ -17,7 +17,7 @@ class ControlPanel(QWidget):
     def __init__(self, parent=None):
         super().__init__(parent)
         
-        self.setFixedWidth(250)
+        self.setMinimumWidth(180)
 
         main_layout = QVBoxLayout(self)
         self.tabs = QTabWidget()
@@ -46,7 +46,7 @@ class ControlPanel(QWidget):
     def get_algorithm_settings(self):
         return self.solve_tab.get_algorithm_settings()
     
-    def set_control_tabs_enabled(self, select, create, solve):
-        self.tabs.setTabEnabled(0, select)
-        self.tabs.setTabEnabled(1, create)
-        self.tabs.setTabEnabled(2, solve)
+    def set_control_tabs_enabled(self, select=None, create=None, solve=None):
+        self.tabs.setTabEnabled(0, select) if select != None else None
+        self.tabs.setTabEnabled(1, create) if create != None else None
+        self.tabs.setTabEnabled(2, solve)  if solve  != None else None

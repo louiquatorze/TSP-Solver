@@ -1,7 +1,8 @@
 import sys
 import numpy as np
 
-from PySide6.QtWidgets import QApplication, QMainWindow, QWidget, QHBoxLayout
+from PySide6.QtWidgets import QSplitter, QMainWindow, QWidget, QHBoxLayout
+from PySide6.QtCore import Qt
 
 from src.gui.control_panel import ControlPanel
 from src.gui.display_panel import DisplayPanel
@@ -19,12 +20,16 @@ class MainWindow(QMainWindow):
         self.solution = SolutionPanel()
 
         # 2. Layout
-        central_widget = QWidget()
-        layout = QHBoxLayout(central_widget)
+        splitter = QSplitter(Qt.Orientation.Horizontal)
+        layout = QHBoxLayout(splitter)
+
         layout.addWidget(self.controls)
         layout.addWidget(self.display)
         layout.addWidget(self.solution)
-        self.setCentralWidget(central_widget)
+
+        splitter.setSizes([250, 800, 250])
+        splitter.setLayout(layout)
+        self.setCentralWidget(splitter)
         
         # Set style
         self.setStyleSheet("""
@@ -86,8 +91,11 @@ class MainWindow(QMainWindow):
     def set_status(self, status):
         self.display.set_status(status)
 
-    def set_control_tabs_enabled(self, select, create, solve):
+    def set_control_tabs_enabled(self, select=None, create=None, solve=None):
         self.controls.set_control_tabs_enabled(select, create, solve)
+
+    def set_analytics_buttons_enabled(self, enabled):
+        self.solution.set_analytics_buttons_enabled(enabled)
 
     def set_range(self, range):
         self.display.set_range(range)
@@ -106,3 +114,6 @@ class MainWindow(QMainWindow):
 
     def set_exit_status(self, exit_status):
         self.solution.set_exit_status(exit_status)
+        
+    def get_analytics_flags(self):
+        return self.solution.get_analytics_flags()

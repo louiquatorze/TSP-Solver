@@ -7,8 +7,8 @@
 #include <random>
 #include <vector>
 
-AntColonySolver::AntColonySolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out)
+AntColonySolver::AntColonySolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 AntColonySolver::~AntColonySolver() {
@@ -91,21 +91,22 @@ ExitStatus AntColonySolver::prepareCPU() {
 }
 
 ExitStatus AntColonySolver::solveCPU() {
-    environment.progress.store(0);
+    environment.updateProgress(0);
 
     // Solve TSP
     for (i32 i = 0; i < algorithmSettings.iterations; i++) {
         if (environment.interrupt)
             return ExitStatus::INTERRUPTED;
         
-        environment.progress.store(100 * i / algorithmSettings.iterations);
+        if (analyticFlags & Analytics::Progress)
+            environment.updateProgress(100 * i / algorithmSettings.iterations);
 
         runAntColonyIteration();
         evaluateBestPathAndResetAnts();
     }
 
     solutionData_out.pathLength = minPathLength;
-    environment.progress.store(100);
+    environment.updateProgress(100);
 
     return ExitStatus::SUCCESS;
 }

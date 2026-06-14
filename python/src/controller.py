@@ -13,7 +13,6 @@ class Controller(QObject):
         super().__init__()
 
         self.tsp_parsed = None
-        self.tsp_metadata = None
 
         self.view = MainWindow(title="TSP Solver")
         self.view.show()
@@ -36,15 +35,20 @@ class Controller(QObject):
         
         data = {
             "algorithm_settings" : algorithm_settings,
-            "tsp_parsed" : self.tsp_parsed
+            "tsp_parsed" : self.tsp_parsed,
+            "analytics_flags" : self.view.get_analytics_flags()
         }
 
         self.view.set_path(None)
-        self.view.set_control_tabs_enabled(False, False, True)
+        self.view.set_control_tabs_enabled(select=False, create=False)
+        self.view.set_analytics_buttons_enabled(False)
+
         self.handler.handle_solve(data)
 
     def on_solved(self, solution_data, exit_status):
         self.view.set_control_tabs_enabled(True, True, True)
+        self.view.set_analytics_buttons_enabled(True)
+
         self.view.set_exit_status(exit_status)
 
         if solution_data is None:
@@ -70,7 +74,7 @@ class Controller(QObject):
 
         self.view.set_progress(0)
         self.view.set_status(WorkStatus.Idle)
-        self.view.set_opt_path(self.tsp_metadata.optimal_path_length)
+        self.view.set_opt_path(self.tsp_parsed.get_opt_path())
         self.view.clear_solution_panel()
 
         self.view.set_cities(display_data)
@@ -82,7 +86,6 @@ class Controller(QObject):
             self.tsp_parsed.comment
         )
         self.view.set_range(range)
-        self.view.set_opt_path(opt_path)
 
     def cleanup(self):
         print("Cleaning up controller")

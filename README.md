@@ -13,7 +13,7 @@ Adding a new algorithm requires registering it within both the core C++ calculat
 1. **Declare the Interface:** Create a new header file in `c++/include/solvers/<your_solver>.h` and declare your solver as a subclass of `TSPSolver`.
 2. **Register the Algorithm:** Add your new algorithm variant to the `Algorithm` enum located inside `c++/include/structs/AlgorithmSettings.h`.
 3. **Configure Parameters:** Update the `AlgorithmSettings` struct fields if your algorithm requires specific hyper-parameters (such as custom iteration limits or thresholds).
-4. **Update the Factory:** Add a new conditional `switch-case` block inside `c++/src/TSPSolverFactory::create` to instantiate your solver class when selected.
+4. **Update the Factory:** Add a new conditional `switch-case` block inside `c++/src/solvers/TSPSolverFactory::create` to instantiate your solver class when selected.
 5. **Configure Graph Dependencies:** In `c++/include/structs/TSP.h`, add your algorithm keys to the tracking sets:
    * `hasEdgeWeights`
    * `hasHeuristics`
