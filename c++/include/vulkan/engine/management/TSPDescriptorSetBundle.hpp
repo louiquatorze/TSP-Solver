@@ -22,11 +22,12 @@ public:
 
 private:
     void createDescriptorSetLayout();
-    void createDescriptorSet();
+    void allocateDescriptorSet();
 
     const VulkanCore& vulkanCore;
 
     VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+    VkDescriptorPool      descriptorPool      = VK_NULL_HANDLE;
     VkDescriptorSet       descriptorSet       = VK_NULL_HANDLE;
     
     // =================================

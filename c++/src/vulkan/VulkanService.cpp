@@ -5,35 +5,6 @@
 #include <cstring>
 #include <fstream>
 
-void VulkanService::createDescriptorSetLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout) {
-    VkDescriptorSetLayoutBinding binding{};
-    binding.binding = 0;
-    binding.descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-    binding.descriptorCount = 1000; 
-    binding.stageFlags = VK_SHADER_STAGE_COMPUTE_BIT;
-
-    VkDescriptorBindingFlags bindingFlags = 
-        VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT | 
-        VK_DESCRIPTOR_BINDING_VARIABLE_DESCRIPTOR_COUNT_BIT;
-
-    VkDescriptorSetLayoutBindingFlagsCreateInfo extendedInfo{};
-    extendedInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
-    extendedInfo.bindingCount = 1;
-    extendedInfo.pBindingFlags = &bindingFlags;
-
-    // Create layout with bindings 
-    VkDescriptorSetLayoutCreateInfo descriptorLayoutInfo{};
-    descriptorLayoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-    descriptorLayoutInfo.pNext = &extendedInfo;
-    descriptorLayoutInfo.pBindings = &binding;
-    descriptorLayoutInfo.bindingCount = 1;
-    descriptorLayoutInfo.flags = 0;
-
-    if (vkCreateDescriptorSetLayout(device, &descriptorLayoutInfo, nullptr, &descriptorSetLayout) != VK_SUCCESS) {
-        throw std::runtime_error("Failed to create descriptor set layout.");
-    }
-}
-
 void VulkanService::createPipelineLayout(VkDevice device, VkDescriptorSetLayout& descriptorSetLayout, 
                                          i32 pushConstantRangeSize, VkPipelineLayout& pipelineLayout_out) {
     VkPushConstantRange pushConstantRange;
