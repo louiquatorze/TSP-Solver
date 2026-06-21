@@ -7,6 +7,7 @@
 #include <vector>
 #include <optional>
 #include <memory>
+#include <iostream>
 
 class VulkanCore {
 public:
@@ -34,6 +35,7 @@ private:
     
     std::optional<std::pair<u32, u32>> findComputeQueueFamily(VkPhysicalDevice device);
     std::optional<u32> findTransferQueueFamily(VkPhysicalDevice device);
+    std::optional<std::pair<u32, u32>> findUniversalQueueFamily(VkPhysicalDevice device);
     
     i32 ratePhysicalDevice(VkPhysicalDevice device);
     i32 rateComputeQueueFamily(VkQueueFamilyProperties& properties);

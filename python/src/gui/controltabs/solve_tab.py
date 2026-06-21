@@ -1,6 +1,6 @@
 
 from PySide6.QtWidgets import (QCheckBox, QWidget, QVBoxLayout, QGroupBox, QComboBox, 
-                             QLabel, QStackedWidget, QPushButton, QFrame, 
+                             QLabel, QStackedWidget, QPushButton, QFrame, QListView,
                              QFormLayout, QSpinBox, QHBoxLayout, QSlider)
 from PySide6.QtCore import Signal
 from PySide6.QtCore import Qt
@@ -21,6 +21,7 @@ class SolveTab(QWidget):
 
         # 1.1. Algorith selection
         self.algo_combo = QComboBox()
+        self.algo_combo.setView(QListView())
 
         # Must align with SolveParams.Algorithm !
         self.algo_combo.addItem("Iterative", AlgorithmSettings.Algorithm.Iterative)

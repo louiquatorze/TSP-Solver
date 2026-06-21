@@ -16,7 +16,7 @@ class SolutionTab(QWidget):
         title = QLabel("Solution")
         title.setStyleSheet("font-weight: bold; font-size: 16px; color: white;")
         self.layout.addWidget(title)
-        
+
         # --- Section: Execution Summary ---
         self._add_section("Execution Summary")
         self.exit_status_label = self._add_data_field("Exit Status:", "")
@@ -85,11 +85,16 @@ class SolutionTab(QWidget):
         self.final_len_label.setText(f"{solution_data.pathLength}")
         
         # Logic for accuracy if optimal exists
-        if hasattr(solution_data, 'optimalLength') and solution_data.optimalLength > 0:
-            acc = (solution_data.optimalLength / solution_data.pathLength) * 100
+        if solution_data.optimalPathLength > 0 and solution_data.pathLength > 0:
+            self.optimal_len_label.setText(f"{solution_data.optimalPathLength:.4f}s")
+
+            acc = (solution_data.optimalPathLength / solution_data.pathLength) * 100
             self.accuracy_label.setText(f"{acc:.2f}%")
 
     def set_optimal_path_length(self, opt_path_length):
+        if opt_path_length < 0:
+            self.optimal_len_label.setText("-")
+        
         self.optimal_len_label.setText(f"{opt_path_length:.4f}s")
 
     def set_accuracy(self, accuracy):

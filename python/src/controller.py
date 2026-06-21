@@ -1,12 +1,13 @@
 
 import numpy as np
 
-from PySide6.QtCore import QObject
+from PySide6.QtCore import QObject, Slot
 
 from src.gui.main_window import MainWindow
 from src.solver.solver_handler import SolverHandler
 from src.tsp_parser import TSPParser
 from src.solver.work_status import WorkStatus
+from src.solver.exit_status import ExitStatus
 
 class Controller(QObject):
     def __init__(self):
@@ -26,8 +27,11 @@ class Controller(QObject):
         self.view.controls.interruptRequested.connect(self.handler.interrupt)
         
         self.handler.status.connect(self.view.set_status)
-        self.handler.progress.connect(self.view.set_progress)
         self.handler.solved.connect(self.on_solved)
+        
+        self.handler.progress.connect(self.view.set_progress)
+        self.handler.cbl_val.connect(self.view.update_cbl_plot)
+        self.handler.lib_val.connect(self.view.update_lib_plot)
 
     def solve(self, algorithm_settings):
         if self.tsp_parsed is None:
@@ -42,6 +46,7 @@ class Controller(QObject):
         self.view.set_path(None)
         self.view.set_control_tabs_enabled(select=False, create=False)
         self.view.set_analytics_buttons_enabled(False)
+        self.view.clear_analytic_plots()
 
         self.handler.handle_solve(data)
 
@@ -65,9 +70,12 @@ class Controller(QObject):
 
         self.view.set_path(path)
 
+    def on_optimal_length_calculated(self):
+        pass
+
     def on_file_picked(self, path):
         self.tsp_parsed = TSPParser.parse(path)
-
+        
         display_data = self.tsp_parsed.get_display_data()
         range = self.tsp_parsed.get_display_range(display_data)
         opt_path = self.tsp_parsed.get_opt_path(display_data)

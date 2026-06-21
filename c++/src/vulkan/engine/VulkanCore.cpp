@@ -14,6 +14,8 @@ VulkanCore::VulkanCore() {
 }
 
 VulkanCore::~VulkanCore() {
+    std::cout << "[C++] Destructing vulkan core" << std::endl;
+    
     if (m_device != VK_NULL_HANDLE)
         vkDestroyDevice(m_device, nullptr);
 
@@ -24,7 +26,7 @@ VulkanCore::~VulkanCore() {
 }
 
 void VulkanCore::createInstance() {
-    if (m_enableValidationLayers && !checkValidationLayerSupport())
+    if (m_enableValidationLayers && !checkValidationLayerSupport()) 
         throw std::runtime_error("Validation layers requested, but not available!");
 
     // 1. Describe your application parameters to the driver
@@ -102,16 +104,22 @@ i32 VulkanCore::ratePhysicalDevice(VkPhysicalDevice device) {
 
     VkPhysicalDeviceSubgroupProperties subgroupProperties{};
     subgroupProperties.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SUBGROUP_PROPERTIES;
-
+    subgroupProperties.pNext = nullptr;
+    
     VkPhysicalDeviceProperties2 deviceProperties2{};
     deviceProperties2.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_PROPERTIES_2;
     deviceProperties2.pNext = &subgroupProperties;
+
     vkGetPhysicalDeviceProperties2(device, &deviceProperties2);
 
+    /////////////////////////////////////////////////////////////////////////////
+    // TODO: implement ownership transfer, for now disable transferQueueFamily //
+    /////////////////////////////////////////////////////////////////////////////
+    
     auto computeFamily = findComputeQueueFamily(device);
-    auto transferFamily = findTransferQueueFamily(device);
+    //auto transferFamily = findTransferQueueFamily(device);
 
-    if (!computeFamily.has_value() || !transferFamily.has_value())
+    if (!computeFamily.has_value())
         return -1;
 
     // Add max compute queue family score
@@ -220,8 +228,13 @@ void VulkanCore::createLogicalDevice() {
     auto computeFamilyOpt = findComputeQueueFamily(m_physicalDevice);
     m_computeFamilyIndex = computeFamilyOpt->first;
 
-    auto transferFamilyOpt = findTransferQueueFamily(m_physicalDevice);
-    m_transferFamilyIndex = transferFamilyOpt.value();
+    /////////////////////////////////////////////////////////////////////////////
+    // TODO: implement ownership transfer, for now disable transferQueueFamily //
+    /////////////////////////////////////////////////////////////////////////////
+    
+    //auto transferFamilyOpt = findTransferQueueFamily(m_physicalDevice);
+    //m_transferFamilyIndex = transferFamilyOpt.value();
+    m_transferFamilyIndex = m_computeFamilyIndex;
 
     auto queueCreateInfos = getQueueCreateInfos();
 
@@ -240,11 +253,11 @@ void VulkanCore::createLogicalDevice() {
 
     if (vkCreateDevice(m_physicalDevice, &createInfo, nullptr, &m_device) != VK_SUCCESS)
         throw std::runtime_error("Failed to create logical compute device!");
-
+    
     vkGetDeviceQueue(m_device, m_computeFamilyIndex, 0, &m_computeQueue);
 
     if (m_transferFamilyIndex == m_computeFamilyIndex)
-        m_transferQueue == m_computeQueue;
+        m_transferQueue = m_computeQueue;
     else
         vkGetDeviceQueue(m_device, m_transferFamilyIndex, 0, &m_transferQueue);
 
@@ -268,6 +281,7 @@ bool VulkanCore::checkValidationLayerSupport() {
         }
         if (!layerFound) return false;
     }
+
     return true;
 }
 

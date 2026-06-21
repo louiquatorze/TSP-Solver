@@ -60,7 +60,6 @@ class TSPParsed:
     display_data: list = None
     
     opt_path_indices: list = None
-    opt_path_length: int = 0
     
     def get_display_range(self, display_data=None):
         if display_data is None:

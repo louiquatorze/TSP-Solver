@@ -1,65 +1,46 @@
 
 #include "VulkanTSPPipelineManager.hpp"
 #include "PushConstants.hpp"
+#include "PathService.hpp"
 
 #include <fstream>
 
 VulkanTSPPipelineManager::VulkanTSPPipelineManager(const VulkanCore& vulkanCore) : 
     vulkanCore(vulkanCore),
-    descriptorSetBundle(std::make_unique<TSPDescriptorSetBundle>(vulkanCore)),
-    pipelineData({
-        PipelineInitializationData{ &iterative.calculate     , "hello", "world" },
-
-        PipelineInitializationData{ &antColony.simulateAnts  , "hello", "world" },
-        PipelineInitializationData{ &antColony.rewardBestPath, "hello", "world" },
-    }) 
+    descriptorSetBundle(std::make_unique<TSPDescriptorSetBundle>(vulkanCore))
 {
+    pipelines.resize(static_cast<size_t>(PipelineType::Count));
+
+    // Configure metadata mappings
+    pipelines[static_cast<size_t>(PipelineType::IterativeCalculate)] = {
+        PathService::getSPIRVFile("iterative/calculateCS.comp.spv").string(), "main"
+    };
+    pipelines[static_cast<size_t>(PipelineType::AntColonySimulateAnts)] = {
+        PathService::getSPIRVFile("antColony/simulateAntsCS.comp.spv").string(), "main"
+    };
+    pipelines[static_cast<size_t>(PipelineType::AntColonyRewardBestPath)] = {
+        PathService::getSPIRVFile("antColony/rewardBestPathCS.comp.spv").string(), "main"
+    };
+
+    // Sequential initialization dependency chain
     createPipelineLayout();
+    compileAllPipelines();
 }
 
 VulkanTSPPipelineManager::~VulkanTSPPipelineManager() {
+    std::cout << "[C++] Destructing vulkan pipeline manager" << std::endl;
+
     const auto device = vulkanCore.getLogicalDevice();
 
-    for (auto& pipelineInit : pipelineData) {
-        const auto pipeline = pipelineInit.pipeline;
-
-        if (pipeline != nullptr && *pipeline != VK_NULL_HANDLE) {
-            vkDestroyPipeline(device, *pipeline, nullptr);
-            *pipeline = VK_NULL_HANDLE;
+    for (const auto& pipeline : pipelines) {
+        if (pipeline.handle != VK_NULL_HANDLE) {
+            vkDestroyPipeline(device, pipeline.handle, nullptr);
         }
     }
 
     if (pipelineLayout != VK_NULL_HANDLE) {
         vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
     }
-}
-
-void VulkanTSPPipelineManager::bindBuffers(VkBuffer buffer, const std::vector<DescriptorBindingUpdate>& descriptorBindingUpdates) {
-    const auto device = vulkanCore.getLogicalDevice();
-
-    i32 bindingCount = descriptorBindingUpdates.size();
-
-    if (bindingCount == 0) return;
-
-    std::vector<VkDescriptorBufferInfo> descriptorBufferInfos(bindingCount);
-    std::vector<VkWriteDescriptorSet> descriptorWrites(bindingCount);
-
-    for (i32 i = 0; i < bindingCount; i++) {
-        const DescriptorBindingUpdate& dbu = descriptorBindingUpdates[i];
-
-        descriptorBufferInfos[i].buffer = buffer;
-        descriptorBufferInfos[i].offset = dbu.offset;
-        descriptorBufferInfos[i].range  = dbu.range;
-
-        descriptorWrites[i].sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-        descriptorWrites[i].dstSet = descriptorSetBundle->getDescriptorSet();
-        descriptorWrites[i].dstBinding = dbu.binding;
-        descriptorWrites[i].descriptorType = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-        descriptorWrites[i].descriptorCount = 1;
-        descriptorWrites[i].pBufferInfo = &descriptorBufferInfos[i];
-    }
-
-    vkUpdateDescriptorSets(device, bindingCount, descriptorWrites.data(), 0, nullptr);
 }
 
 void VulkanTSPPipelineManager::createPipelineLayout() {
@@ -84,12 +65,12 @@ void VulkanTSPPipelineManager::createPipelineLayout() {
         throw std::runtime_error("Failed to create pipeline layout");
     }
 }
-
-void VulkanTSPPipelineManager::createPipelines() {
+    
+void VulkanTSPPipelineManager::compileAllPipelines() {
     const auto device = vulkanCore.getLogicalDevice();
 
-    for (auto& pipelineInit : pipelineData) {
-        const auto spirv = VulkanTSPPipelineManager::readSPIRVFile(pipelineInit.fileName);
+    for (auto& pipeline : pipelines) {
+        const auto spirv = VulkanTSPPipelineManager::readSPIRVFile(pipeline.glslPath);
 
         VkShaderModuleCreateInfo shaderModuleInfo{};
         shaderModuleInfo.sType    = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
@@ -108,7 +89,7 @@ void VulkanTSPPipelineManager::createPipelines() {
         shaderStageInfo.pNext               = nullptr;
         shaderStageInfo.flags               = 0;
         shaderStageInfo.module              = shaderModule;
-        shaderStageInfo.pName               = pipelineInit.entryName.c_str();
+        shaderStageInfo.pName               = pipeline.entryPoint.c_str();
         shaderStageInfo.pSpecializationInfo = nullptr;
         shaderStageInfo.stage               = VK_SHADER_STAGE_COMPUTE_BIT;
 
@@ -121,7 +102,7 @@ void VulkanTSPPipelineManager::createPipelines() {
         pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
         pipelineInfo.basePipelineIndex  = -1;
 
-        auto result = vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, pipelineInit.pipeline);
+        auto result = vkCreateComputePipelines(device, nullptr, 1, &pipelineInfo, nullptr, &pipeline.handle);
 
         vkDestroyShaderModule(device, shaderModule, nullptr);
 
@@ -129,6 +110,10 @@ void VulkanTSPPipelineManager::createPipelines() {
             throw std::runtime_error("Failed to create compute pipeline");
         }
     }
+}
+
+VkPipeline VulkanTSPPipelineManager::getPipeline(PipelineType type) const {
+    return pipelines[static_cast<size_t>(type)].handle;
 }
 
 std::vector<u32> VulkanTSPPipelineManager::readSPIRVFile(const std::string& fileName) {

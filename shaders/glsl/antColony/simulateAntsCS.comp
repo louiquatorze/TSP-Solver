@@ -1,0 +1,14 @@
+
+#version 450
+layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+
+#include "pushConstants.glsl"
+#include "bufferBindings.glsl"
+
+void main() {
+    // Only let the very first invocation increment it once for testing
+    if (gl_GlobalInvocationID.x == 0) {
+        uint val = edgeWeights.matrix[0]; // Read
+        edgeWeights.matrix[0] = val + 1; // Write
+    }
+}

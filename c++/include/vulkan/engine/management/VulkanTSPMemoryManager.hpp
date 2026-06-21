@@ -2,11 +2,21 @@
 #pragma once
 
 #include "VulkanCore.hpp"
+#include "VulkanTSPCommandBufferManager.hpp"
 #include "ExitStatus.hpp"
+#include "PushConstants.hpp"
 
 #include <vulkan/vulkan.h>
 
+struct StageData {
+    void*        data   = nullptr;
+    VkDeviceSize offset = 0;
+    VkDeviceSize size   = 0;
+};
+
 struct BufferLayout {
+    VkDeviceSize totalSize         = 0;
+
     VkDeviceSize edgeWeightsOffset = 0;
     VkDeviceSize edgeWeightsSize   = 0;
 
@@ -20,17 +30,21 @@ struct BufferLayout {
     VkDeviceSize visitedSize       = 0;
 };
 
-
 class VulkanTSPMemoryManager {
 public:
-    VulkanTSPMemoryManager(const VulkanCore& vulkanCore);
+    VulkanTSPMemoryManager(const VulkanCore& vulkanCore, const VulkanTSPCommandBufferManager& vulkanCommandBufferManager);
     ~VulkanTSPMemoryManager();
 
     ExitStatus calculateBufferLayoutIterative(i32 dim);
     ExitStatus calculateBufferLayoutAntColony(i32 dim, i32 antCount);
 
-    const BufferLayout& getBufferLayout() const { return bufferLayout; }
-    VkBuffer getBuffer() { return monolithicMemory.buffer; }
+    void stageAndCopyData(const std::vector<StageData>& stageData);
+    void pushPushConstants(const PushConstants pushConstants);
+
+    const BufferLayout& getBufferLayout() const     { return bufferLayout; }
+    VkBuffer            getMonolithicBuffer()       { return monolithic.buffer; }
+    VkDeviceMemory      getMonolithicMemoryHandle() { return monolithic.allocated; }
+    void*               getMonolithicMapped()       { return monolithic.mapped; }
     
 private:
     void reserveMonolithicMemory();
@@ -39,14 +53,17 @@ private:
     u32 findOptimalMemoryType(u32 memoryTypeBits, VkMemoryPropertyFlags properties);
 
     const VkDeviceSize RESERVED_MEMORY_SIZE = 512 * 1024 * 1024; // 512 MiB
-    const VulkanCore& vulkanCore;   
 
-    VkDeviceSize   storageBufferAlignment;
-    
+    const VulkanCore& vulkanCore;
+    const VulkanTSPCommandBufferManager& vulkanCommandBufferManager;
+
+    VkDeviceSize storageBufferAlignment;
+
     struct {
         VkDeviceMemory allocated;
         VkBuffer       buffer;
-    } monolithicMemory;
+        void*          mapped;
+    } monolithic;
 
     BufferLayout bufferLayout;
 };

@@ -10,5 +10,7 @@ class SolutionData(Structure):
 
         ("preprocessingTime_ns", ctypes.c_int64),
         ("preparationTime_ns", ctypes.c_int64),
-        ("solutionTime_ns", ctypes.c_int64)
+        ("solutionTime_ns", ctypes.c_int64),
+
+        ("optimalPathLength", ctypes.c_uint32)
     ]

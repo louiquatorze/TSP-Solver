@@ -44,3 +44,12 @@ class SolutionPanel(QWidget):
         
     def get_analytics_flags(self):
         return self.analytics_tab.get_analytics_flags()
+    
+    def update_cbl_plot(self, value):
+        self.analytics_tab.update_cbl_plot(value)
+
+    def update_lib_plot(self, value):
+        self.analytics_tab.update_lib_plot(value)
+    
+    def clear_analytic_plots(self):
+        self.analytics_tab.clear_plots()

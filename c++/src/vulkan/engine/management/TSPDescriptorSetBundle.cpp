@@ -7,6 +7,8 @@ TSPDescriptorSetBundle::TSPDescriptorSetBundle(const VulkanCore& vulkanCore) : v
 }
 
 TSPDescriptorSetBundle::~TSPDescriptorSetBundle() {
+    std::cout << "[C++] Destructing vulkan descriptor set bundle" << std::endl;
+
     const auto device = vulkanCore.getLogicalDevice();
     
     if (descriptorPool != VK_NULL_HANDLE) {
@@ -70,8 +72,50 @@ void TSPDescriptorSetBundle::allocateDescriptorSet() {
     descriptorSetInfo.descriptorSetCount = 1;
     descriptorSetInfo.pSetLayouts        = &descriptorSetLayout;
 
-
     if (vkAllocateDescriptorSets(device, &descriptorSetInfo, &descriptorSet) != VK_SUCCESS) {
         throw std::runtime_error("[C++] Failed to create descriptor pool");
     }
 }   
+
+void TSPDescriptorSetBundle::bindBuffers(VkBuffer buffer, const std::vector<DescriptorBindingUpdate>& descriptorBindingUpdates) const {
+    const auto device = vulkanCore.getLogicalDevice();
+    const size_t bindingCount = descriptorBindingUpdates.size();
+    
+    if (bindingCount == 0) return;
+
+    std::vector<VkDescriptorBufferInfo> descriptorBufferInfos;
+    descriptorBufferInfos.reserve(bindingCount); 
+
+    std::vector<VkWriteDescriptorSet> descriptorWrites;
+    descriptorWrites.reserve(bindingCount);
+
+    for (const auto& dbu : descriptorBindingUpdates) {
+        VkDescriptorBufferInfo bufferInfo{};
+        bufferInfo.buffer = buffer;
+        bufferInfo.offset = dbu.offset;
+        bufferInfo.range  = dbu.range;
+        descriptorBufferInfos.push_back(bufferInfo);
+    }
+
+    for (u32 i = 0; i < bindingCount; ++i) {
+        VkWriteDescriptorSet writeInfo{};
+        writeInfo.sType           = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+        writeInfo.pNext           = nullptr;
+        writeInfo.dstSet          = descriptorSet;
+        writeInfo.dstBinding      = descriptorBindingUpdates[i].binding;
+        writeInfo.dstArrayElement = 0;
+        writeInfo.descriptorType  = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+        writeInfo.descriptorCount = 1;
+        writeInfo.pBufferInfo     = &descriptorBufferInfos[i];
+        
+        descriptorWrites.push_back(writeInfo);
+    }
+
+    vkUpdateDescriptorSets(
+        device, 
+        static_cast<u32>(descriptorWrites.size()), 
+        descriptorWrites.data(), 
+        0, 
+        nullptr
+    );
+}

@@ -6,8 +6,8 @@
 #include <iomanip>
 #include <cmath>
 
-IterativeSolver::IterativeSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
+IterativeSolver::IterativeSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 IterativeSolver::~IterativeSolver() {
@@ -30,6 +30,38 @@ ExitStatus IterativeSolver::prepareCPU() {
 }
 
 ExitStatus IterativeSolver::prepareGPU() {
+    auto& ressourceManager = vulkanContext.getResourceManager();
+
+    auto& memoryManager = ressourceManager.getMemoryManager();
+    auto& pipelineManager = ressourceManager.getPipelineManager();
+
+    // Calculate the buffer layout
+    auto exitStatus = memoryManager.calculateBufferLayoutIterative(tsp.dimension);
+    
+    if (exitStatus != ExitStatus::SUCCESS) {
+        return exitStatus;
+    }
+
+    const auto& bufferLayout = memoryManager.getBufferLayout();
+    const auto& descriptorSetBundle = pipelineManager.getDescriptorSetBundle();
+
+    // Stage the data and copy it into dedicated VRAM
+    StageData edgeWeightsStageData{};
+    edgeWeightsStageData.data   = static_cast<void*>(tsp.edgeWeights);
+    edgeWeightsStageData.offset = bufferLayout.edgeWeightsOffset;
+    edgeWeightsStageData.size   = bufferLayout.edgeWeightsSize;
+
+    std::vector<StageData> stageData ={ edgeWeightsStageData };
+    memoryManager.stageAndCopyData(stageData);
+
+    // Update the descriptor bindings to match the new buffer layout
+    std::vector<TSPDescriptorSetBundle::DescriptorBindingUpdate> descriptorBindingUpdates(1);
+    descriptorBindingUpdates[0].binding = descriptorSetBundle.getEdgeWeightsBinding();
+    descriptorBindingUpdates[0].offset  = bufferLayout.edgeWeightsOffset;
+    descriptorBindingUpdates[0].range   = bufferLayout.edgeWeightsSize;
+
+    descriptorSetBundle.bindBuffers(memoryManager.getMonolithicBuffer(), descriptorBindingUpdates);
+
     return ExitStatus::SUCCESS;
 }
 

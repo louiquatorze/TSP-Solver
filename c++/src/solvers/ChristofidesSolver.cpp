@@ -6,8 +6,8 @@
 #include <set>
 #include <limits>
 
-ChristofidesSolver::ChristofidesSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
+ChristofidesSolver::ChristofidesSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 ChristofidesSolver::~ChristofidesSolver() { }

@@ -44,11 +44,22 @@ class TSPDisplay(pg.PlotWidget):
             size=6, 
         )
 
+        # Button to hide/show path
+        self.path_btn = QCheckBox(parent=self)
+        self.path_btn.move(35, 10)
+        self.path_btn.setChecked(True)
+        self.path_btn.clicked.connect(
+            lambda: self.opt_path_line.setVisible(self.path_btn.isChecked())
+        )
+
         # Button to hide/show opt path
         self.opt_path_btn = QCheckBox(parent=self)
         self.opt_path_btn.move(35, 10)
         self.opt_path_btn.setChecked(True)
-        self.opt_path_btn.clicked.connect(lambda: self.opt_path_line.setVisible(self.opt_path_btn.isChecked()))
+        self.opt_path_btn.clicked.connect(
+            lambda: self.opt_path_line.setVisible(self.opt_path_btn.isChecked())
+        )
+
         self.opt_path_btn.setStyleSheet("""
             QCheckBox {
                 font-size: 12px;

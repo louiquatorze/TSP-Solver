@@ -14,6 +14,8 @@ VulkanEngine::VulkanEngine(const VulkanCore& vulkanCore) : vulkanCore(vulkanCore
 }
 
 VulkanEngine::~VulkanEngine() {
+    std::cout << "[C++] Destructing vulkan engine" << std::endl;
+    
     const auto device = vulkanCore.getLogicalDevice();
 
     if (m_transferFence != VK_NULL_HANDLE) 

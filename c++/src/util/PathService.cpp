@@ -5,31 +5,41 @@
 #include <iostream>
 
 const PathService::path PathService::getProjectRootDir() {
-    static const PathService::path root = std::filesystem::current_path();
+    const PathService::path root = std::filesystem::current_path();
     return root;
 }
 
 const PathService::path PathService::getCXXRootDir() {
-    static const PathService::path cxxRoot = PathService::getProjectRootDir() / "c++";
+    const PathService::path cxxRoot = PathService::getProjectRootDir() / "c++";
     return cxxRoot;
 }
 
 const PathService::path PathService::getSourceDir() {
-    static const PathService::path source = PathService::getCXXRootDir() / "src";
+    const PathService::path source = PathService::getCXXRootDir() / "src";
     return source;
 }
 
 const PathService::path PathService::getIncludeDir() {
-    static const PathService::path include = PathService::getCXXRootDir() / "include";
+    const PathService::path include = PathService::getCXXRootDir() / "include";
     return include;
 }
 
 const PathService::path PathService::getShaderDir() {
-    static const PathService::path shader = PathService::getProjectRootDir() / "shaders";
+    const PathService::path shader = PathService::getProjectRootDir() / "shaders";
     return shader;
 }
 
+const PathService::path PathService::getShaderGLSLDir() {
+    const PathService::path shaderGLSL = PathService::getShaderDir() / "glsl";
+    return shaderGLSL;
+}
+
 const PathService::path PathService::getShaderCompiledDir() {
-    static const PathService::path shaderCompiled = PathService::getShaderDir() / "compiled";
+    const PathService::path shaderCompiled = PathService::getShaderDir() / "compiled";
     return shaderCompiled;
+}
+
+const PathService::path PathService::getSPIRVFile(const std::string name) {
+    const PathService::path file = PathService::getShaderCompiledDir() / name;
+    return file;
 }

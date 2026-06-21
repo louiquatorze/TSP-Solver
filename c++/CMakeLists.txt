@@ -15,7 +15,7 @@ add_library(TSPSolver SHARED
     src/util/GraphUtil.cpp
     src/util/PathService.cpp
     src/util/Timer.cpp
-    
+
     src/preprocessing/ComputeTSP.cpp
 
     src/solvers/TSPSolver.cpp 
@@ -35,6 +35,7 @@ add_library(TSPSolver SHARED
     src/vulkan/engine/management/TSPDescriptorSetBundle.cpp
     src/vulkan/engine/management/VulkanTSPPipelineManager.cpp
     src/vulkan/engine/management/VulkanTSPMemoryManager.cpp
+    src/vulkan/engine/management/VulkanTSPCommandBufferManager.cpp
 )
 
 include(FetchContent)

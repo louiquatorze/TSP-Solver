@@ -12,8 +12,14 @@ extern "C" {
     void* createContext();
     void destroyContext(void* handle);
     void setInterrupt(void* handle, bool interrupt);
-    i32 getProgress(void* handle);
     
     i32 computeTSPData(void* handle, AlgorithmSettings* algorithmSettings, TSPRaw* tspRaw, TSP* tsp_out, SolutionData* solutionData_out);
     i32 solveTSP(void* handle, AlgorithmSettings* algorithmSettings, TSP* tsp, SolutionData* solutionData_out, u32 analysisFlags);
+    i32 calculateOptimalPathLength(TSP* tsp, u32* indices, SolutionData* solutionData_out);
+
+    // Analytics
+    i32 getProgress(void* handle);
+    i32 getCBL(void* handle);
+    i32 getLIB(void* handle);
+    i32* getCBP(void* handle);
 }

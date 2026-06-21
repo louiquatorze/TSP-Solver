@@ -117,3 +117,12 @@ class MainWindow(QMainWindow):
         
     def get_analytics_flags(self):
         return self.solution.get_analytics_flags()
+    
+    def update_cbl_plot(self, cbl):
+        self.solution.update_cbl_plot(cbl)
+
+    def update_lib_plot(self, lib):
+        self.solution.update_lib_plot(lib)
+
+    def clear_analytic_plots(self):
+        self.solution.clear_analytic_plots()

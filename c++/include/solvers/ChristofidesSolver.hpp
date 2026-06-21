@@ -6,7 +6,7 @@
 class ChristofidesSolver : public TSPSolver {
 public:
     ChristofidesSolver() = delete;
-    ChristofidesSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&, u32);
+    ChristofidesSolver(Environment&, VulkanContext&, AlgorithmSettings&, TSP&, SolutionData&, u32);
     ~ChristofidesSolver();
 
     void print() override;

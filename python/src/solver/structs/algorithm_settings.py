@@ -25,8 +25,8 @@ class AlgorithmSettings(Structure):
         ("antCount", ctypes.c_int32),
         ("iterations", ctypes.c_int32),
 
-        ("pheromonePower", ctypes.c_float),
         ("exploitationProbability", ctypes.c_float),
         ("localEvaporationRate", ctypes.c_float),
         ("globalEvaporationRate", ctypes.c_float),
+        ("pheromonePower", ctypes.c_float),
     ]

@@ -6,8 +6,9 @@ set -e
 export PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)" 
 
 # --- SHADER DEFINITIONS ---
-export SHADER_SRC_DIR="$PROJECT_ROOT/shaders"
-export SHADER_OUT_DIR="$PROJECT_ROOT/shaders/compiled"
+export SHADER_DIR="$PROJECT_ROOT/shaders"
+export SHADER_SRC_DIR="$SHADER_DIR/glsl"
+export SHADER_OUT_DIR="$SHADER_DIR/compiled"
 
 # --- C++ DEFINITIONS ---
 export CXX_DIR="$PROJECT_ROOT/c++"

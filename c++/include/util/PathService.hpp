@@ -15,5 +15,7 @@ public:
     static const path getIncludeDir();
 
     static const path getShaderDir();
+    static const path getShaderGLSLDir();
     static const path getShaderCompiledDir();
+    static const path getSPIRVFile(const std::string name);
 };

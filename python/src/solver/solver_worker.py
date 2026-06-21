@@ -50,6 +50,7 @@ class SolverWorker(QObject):
         
         if self.tsp_cache.is_cached(tsp_parsed.id, algorithm_settings.beta, algorithm):
             tsp_buffer = self.tsp_cache.tsp
+            solution_data_buffer.optimalPathLength = self.tsp_cache.opt_path_length
 
         else:
             tsp_raw_buffer = TSPRaw()
@@ -104,7 +105,27 @@ class SolverWorker(QObject):
                 self.status.emit(WorkStatus.Idle)
                 return
             
-            self.tsp_cache.set(tsp_buffer, tsp_parsed.id, algorithm_settings.beta, algorithm)  
+            if tsp_parsed.opt_path_indices is None:
+                solution_data_buffer.optPathLength = -1
+
+            else:
+                opt_path_indices_ref = (ctypes.c_uint32 * len(tsp_parsed.opt_path_indices))(*tsp_parsed.opt_path_indices)
+
+                exit_status = self.lib.calculateOptimalPathLength(
+                    ctypes.byref(tsp_buffer),
+                    opt_path_indices_ref,
+                    ctypes.byref(solution_data_buffer)
+                )
+                exit_status = ExitStatus(exit_status)
+                
+                if exit_status != ExitStatus.SUCCESS:
+                    print(f"[SolverWorker] Failed to calculate optimal path length: { exit_status }") 
+                    
+                    self.finished.emit(None, exit_status)
+                    self.status.emit(WorkStatus.Idle)
+                    return
+
+            self.tsp_cache.set(tsp_buffer, tsp_parsed.id, algorithm_settings.beta, algorithm, solution_data_buffer.optimalPathLength)
 
         #################
         ### Solve TSP ###

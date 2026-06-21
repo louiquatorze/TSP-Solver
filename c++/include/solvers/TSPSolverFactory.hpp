@@ -6,5 +6,5 @@
 
 class TSPSolverFactory {
 public:
-    static std::unique_ptr<TSPSolver> create(Environment&, AlgorithmSettings&, TSP&, SolutionData&, u32);
+    static std::unique_ptr<TSPSolver> create(Environment&, VulkanContext&, AlgorithmSettings&, TSP&, SolutionData&, u32);
 };

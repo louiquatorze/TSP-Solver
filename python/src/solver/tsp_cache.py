@@ -3,6 +3,7 @@ from src.solver.structs.tsp import TSP
 
 class TSPCache:
     tsp: TSP = None
+    opt_path_length: int = -1
 
     _id: str = ""
     _beta: float = 0.0
@@ -11,8 +12,9 @@ class TSPCache:
     _has_heuristics: bool = False 
     _requires_beta: bool = False 
 
-    def set(self, tsp, id, beta, algorithm):
+    def set(self, tsp, id, beta, algorithm, opt_path_length):
         self.tsp = tsp
+        self.opt_path_length = opt_path_length
 
         self._id = id
         self._beta = beta

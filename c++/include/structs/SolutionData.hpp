@@ -14,5 +14,7 @@ extern "C" {
         i64 preprocessingTime_ns;
         i64 preparationTime_ns;
         i64 solutionTime_ns;
+
+        u32 optPathLength;
     };
 }

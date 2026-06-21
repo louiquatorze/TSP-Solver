@@ -19,11 +19,12 @@ struct alignas(64) Environment {
     std::atomic<bool> lib_updated{ false };
 
     alignas(64)
+    
+    std::atomic<i32> cbl_data{ 0 };
+    std::atomic<i32> lib_data{ 0 };
 
-    // TODO: implement analytic framework
-    i32 cbl_data{ 0 };
-    i32 cbp_data[1]{ 0 };   
-    i32 lib_data{ 0 };
+    // Temporary solution, make heap allocated in future
+    i32 cbp_data[2048];
 
     inline void updateProgress(i32 progress) {
         this->progress.store(progress, std::memory_order_release);

@@ -1,7 +1,7 @@
 
 import ctypes
 import os
-import threading
+import random
 
 from definitions import PROJECT_ROOT_DIR
 from PySide6.QtCore import QThread, QObject, Signal, QTimer
@@ -21,7 +21,11 @@ class SolverHandler(QObject):
     status = Signal(WorkStatus)
 
     poll_state = Signal()
+
     progress = Signal(int)
+    cbl_val = Signal(int)
+    lib_val = Signal(int)
+    cbp_ind = Signal([int])
     
     def __init__(self):
         super().__init__()
@@ -120,15 +124,28 @@ class SolverHandler(QObject):
     def _poll_progress(self):
         self.progress.emit(int(self.lib.getProgress(self.context)))
 
-    def _poll_cbl():
+    def _poll_cbl(self):
+        self.cbl_val.emit(12)
+        return
+    
+        cbl_value = int(self.lib.getCBL(self.context));
+
+        if cbl_value >= 0:
+            self.cbl_val.emit(cbl_value)
+
+    def _poll_lib(self):
+        self.lib_val.emit(5)
+        return
+
+        lib_value = int(self.lib.getLIB(self.context));
+
+        if lib_value >= 0:
+            self.lib_val.emit(lib_value)
+
+    def _poll_cbp(self):
+        # TODO
         pass
 
-    def _poll_cbp():
-        pass
-
-    def _poll_lib():
-        pass
-            
     def interrupt(self):
         self.lib.setInterrupt(self.context, ctypes.c_bool(True))
 

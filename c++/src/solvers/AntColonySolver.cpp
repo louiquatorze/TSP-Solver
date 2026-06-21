@@ -1,14 +1,15 @@
 
 #include "AntColonySolver.hpp"
 #include "NearestNeighbourSolver.hpp"
+#include "PushConstants.hpp"
 
 #include <iostream>
 #include <iomanip>
 #include <random>
 #include <vector>
 
-AntColonySolver::AntColonySolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
+AntColonySolver::AntColonySolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 AntColonySolver::~AntColonySolver() {
@@ -31,7 +32,7 @@ ExitStatus AntColonySolver::prepareCPU() {
     try {
         visited = new i32[algorithmSettings.antCount * tsp.dimension];
         pheromones = new f32[tsp.dimension * tsp.dimension];
-
+        
         probabilisticWeights = new f32[tsp.dimension];
         pathLenghts = new i64[algorithmSettings.antCount];
     } catch (std::bad_alloc e) {
@@ -87,6 +88,12 @@ ExitStatus AntColonySolver::prepareCPU() {
     for (i32 i = 0; i < tsp.dimension * tsp.dimension; i++)
         pheromones[i] = initialPheromoneStrength;
 
+    //////////////////////
+    /////////TEST/////////
+    //////////////////////
+
+    tsp.edgeWeights[0] = 69420;
+
     return ExitStatus::SUCCESS;
 }
 
@@ -100,7 +107,7 @@ ExitStatus AntColonySolver::solveCPU() {
         
         if (analyticFlags & Analytics::Progress)
             environment.updateProgress(100 * i / algorithmSettings.iterations);
-
+            
         runAntColonyIteration();
         evaluateBestPathAndResetAnts();
     }
@@ -265,11 +272,268 @@ void AntColonySolver::evaluateBestPathAndResetAnts() {
 }
 
 ExitStatus AntColonySolver::prepareGPU() {
+    std::cout << "[C++] Preparing GPU" << std::endl;
+
+    auto exitStatus = prepareCPU();
+
+    if (exitStatus != ExitStatus::SUCCESS) {
+        return exitStatus;
+    }
+
+    auto& ressourceManager = vulkanContext.getResourceManager();
+
+    auto& memoryManager = ressourceManager.getMemoryManager();
+    auto& pipelineManager = ressourceManager.getPipelineManager();
+    auto& commandBufferManager = ressourceManager.getCommandBufferManager();
+
+    ////////////////////////////////////
+    /// Manage GPU memory transferal ///
+    ////////////////////////////////////
+
+    // Calculate the buffer layout
+    std::cout << "[C++] Calculating buffer layout" << std::endl;
+
+    exitStatus = memoryManager.calculateBufferLayoutAntColony(tsp.dimension, algorithmSettings.antCount);
+
+    if (exitStatus != ExitStatus::SUCCESS) {
+        return exitStatus;
+    }
+
+    const auto& bufferLayout = memoryManager.getBufferLayout();
+    const auto& descriptorSetBundle = pipelineManager.getDescriptorSetBundle();
+
+    // Stage the data and copy it into dedicated VRAM
+    StageData edgeWeightsStageData{};
+    edgeWeightsStageData.data   = static_cast<void*>(tsp.edgeWeights);
+    edgeWeightsStageData.offset = bufferLayout.edgeWeightsOffset;
+    edgeWeightsStageData.size   = bufferLayout.edgeWeightsSize;
+
+    StageData heuristicsStageData{};
+    heuristicsStageData.data   = static_cast<void*>(tsp.heuristics);
+    heuristicsStageData.offset = bufferLayout.heuristicsOffset;
+    heuristicsStageData.size   = bufferLayout.heuristicsSize;
+    
+    StageData pheromonesStageData{};
+    pheromonesStageData.data   = static_cast<void*>(pheromones);
+    pheromonesStageData.offset = bufferLayout.pheromonesOffset;
+    pheromonesStageData.size   = bufferLayout.pheromonesSize;
+    
+    StageData visitedStageData{};
+    visitedStageData.data   = static_cast<void*>(visited);
+    visitedStageData.offset = bufferLayout.visitedOffset;
+    visitedStageData.size   = bufferLayout.visitedSize;
+
+    std::vector<StageData> stageData ={ 
+        edgeWeightsStageData, 
+        heuristicsStageData, 
+        pheromonesStageData, 
+        visitedStageData 
+    };
+    std::cout << "[C++] Staging and copying data" << std::endl;
+    memoryManager.stageAndCopyData(stageData);
+
+    std::cout << "[C++] Pushing pushconstants" << std::endl;
+    PushConstants pushConstants{};
+    memoryManager.pushPushConstants(pushConstants);
+
+    // Update the descriptor bindings to match the new buffer layout
+    TSPDescriptorSetBundle::DescriptorBindingUpdate edgeWeightsUpdate{};
+    edgeWeightsUpdate.binding = descriptorSetBundle.getEdgeWeightsBinding();
+    edgeWeightsUpdate.offset  = bufferLayout.edgeWeightsOffset;
+    edgeWeightsUpdate.range   = VK_WHOLE_SIZE;
+
+    TSPDescriptorSetBundle::DescriptorBindingUpdate heuristicsUpdate{};
+    heuristicsUpdate.binding = descriptorSetBundle.getHeuristicsBinding();
+    heuristicsUpdate.offset  = bufferLayout.heuristicsOffset;
+    heuristicsUpdate.range   = VK_WHOLE_SIZE;
+
+    TSPDescriptorSetBundle::DescriptorBindingUpdate pheromonesUpdate{};
+    pheromonesUpdate.binding = descriptorSetBundle.ac_getPheromonesBinding();
+    pheromonesUpdate.offset  = bufferLayout.pheromonesOffset;
+    pheromonesUpdate.range   = VK_WHOLE_SIZE;
+    
+    TSPDescriptorSetBundle::DescriptorBindingUpdate visitedUpdate{};
+    visitedUpdate.binding = descriptorSetBundle.ac_getVisitedBinding();
+    visitedUpdate.offset  = bufferLayout.visitedOffset;
+    visitedUpdate.range   = VK_WHOLE_SIZE;
+    
+    std::vector<TSPDescriptorSetBundle::DescriptorBindingUpdate> descriptorBindingUpdates ={
+        edgeWeightsUpdate,
+        heuristicsUpdate, 
+        pheromonesUpdate, 
+        visitedUpdate
+    };
+    std::cout << "[C++] Binding buffers..." << std::endl;
+    descriptorSetBundle.bindBuffers(memoryManager.getMonolithicBuffer(), descriptorBindingUpdates);
+    std::cout << "[C++] Done." << std::endl;
+
+    ///////////////////////////
+    /// Bake command buffer ///
+    ///////////////////////////
+
+    std::cout << "[C++] Allocating solve command" << std::endl;
+    commandBufferManager.allocateSolveCommand(); 
+    VkCommandBuffer& solveCommand = commandBufferManager.getSolveCommand();
+
+    VkCommandBufferBeginInfo beginInfo{};
+    beginInfo.sType            = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    beginInfo.pNext            = nullptr;
+    beginInfo.flags            = VK_COMMAND_BUFFER_USAGE_SIMULTANEOUS_USE_BIT; 
+    beginInfo.pInheritanceInfo = nullptr;
+
+    std::cout << "[C++] Begin command buffer" << std::endl;
+    if (vkBeginCommandBuffer(solveCommand, &beginInfo) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to begin command buffer");
+    }
+
+    VkPipelineLayout pipelineLayout = pipelineManager.getPipelineLayout();
+    VkDescriptorSet descriptorSet = descriptorSetBundle.getDescriptorSet();
+
+    // Bind ant simulation pipeline
+    std::cout << "[C++] Binding ant sim pipeline" << std::endl;
+
+    VkPipeline antSimPipeline = pipelineManager.getPipeline(VulkanTSPPipelineManager::PipelineType::AntColonySimulateAnts); 
+
+    vkCmdBindPipeline(solveCommand, VK_PIPELINE_BIND_POINT_COMPUTE, antSimPipeline);
+    vkCmdBindDescriptorSets(solveCommand, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+    u32 simGroupCountX = (algorithmSettings.antCount + 31) / 32;
+    vkCmdDispatch(solveCommand, simGroupCountX, 1, 1);
+
+    // Bridge the pipeline execution
+    std::cout << "[C++] Bridgeing pipeline execution" << std::endl;
+
+    VkMemoryBarrier memoryBarrier{ VK_STRUCTURE_TYPE_MEMORY_BARRIER };
+    memoryBarrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    memoryBarrier.pNext         = nullptr;
+    memoryBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+    memoryBarrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT | VK_ACCESS_HOST_READ_BIT;
+
+    vkCmdPipelineBarrier(
+        solveCommand,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // Source stage
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT | VK_PIPELINE_STAGE_HOST_BIT, // Destination/Host stage
+        0,                                    // Dependency flags
+        1, &memoryBarrier,                    // Global memory barriers
+        0, nullptr,                           // Buffer memory barriers
+        0, nullptr                            // Image memory barriers
+    );
+
+    // Bind reward pipeline
+    std::cout << "[C++] Binding reward pipeline" << std::endl;
+
+    VkPipeline antRewardPipeline = pipelineManager.getPipeline(VulkanTSPPipelineManager::PipelineType::AntColonyRewardBestPath);
+    vkCmdBindPipeline(solveCommand, VK_PIPELINE_BIND_POINT_COMPUTE, antRewardPipeline);
+    vkCmdBindDescriptorSets(solveCommand, VK_PIPELINE_BIND_POINT_COMPUTE, pipelineLayout, 0, 1, &descriptorSet, 0, nullptr);
+
+    // Push dummy push constants
+    PushConstants pcs{};
+    pcs.dim = tsp.dimension;
+    vkCmdPushConstants(solveCommand, pipelineLayout, VK_SHADER_STAGE_COMPUTE_BIT, 0, sizeof(PushConstants), &pcs);
+
+    std::cout << "[C++] Dispatching command" << std::endl;
+    vkCmdDispatch(solveCommand, 1, 1, 1);
+
+    // Final host flush barrier
+    VkMemoryBarrier hostFlushBarrier{ VK_STRUCTURE_TYPE_MEMORY_BARRIER };
+    hostFlushBarrier.sType         = VK_STRUCTURE_TYPE_MEMORY_BARRIER;
+    hostFlushBarrier.pNext         =  nullptr;
+    hostFlushBarrier.srcAccessMask = VK_ACCESS_SHADER_WRITE_BIT;
+    hostFlushBarrier.dstAccessMask = VK_ACCESS_HOST_READ_BIT;
+
+    vkCmdPipelineBarrier(
+        solveCommand,
+        VK_PIPELINE_STAGE_COMPUTE_SHADER_BIT, // Source stage
+        VK_PIPELINE_STAGE_HOST_BIT,           // Host stage
+        0,                                    // Dependency flags
+        1, &hostFlushBarrier,                 // Global memory barriers
+        0, nullptr,                           // Buffer memory barriers
+        0, nullptr                            // Image memory barriers
+    );
+
+    // Bake the command buffer 
+    std::cout << "[C++] Ending command buffer" << std::endl;
+
+    if (vkEndCommandBuffer(solveCommand) != VK_SUCCESS) {
+        throw std::runtime_error("Failed to bake command buffer");
+    }
+
     return ExitStatus::SUCCESS;
 }
 
-ExitStatus AntColonySolver::solveGPU() {
-    return ExitStatus::ERROR_NOT_IMPLEMENTED;
+ExitStatus AntColonySolver::solveGPU() {    
+    std::cout << "[C++] Solving GPU" << std::endl;
+
+    const auto& device = vulkanContext.getCore().getLogicalDevice();
+
+    auto& resourceManager = vulkanContext.getResourceManager();
+
+    auto& memoryManager = resourceManager.getMemoryManager();
+    auto& pipelineManager = resourceManager.getPipelineManager();
+    auto& commandBufferManager = resourceManager.getCommandBufferManager();
+
+    auto& bufferLayout = memoryManager.getBufferLayout();
+    auto computeQueue = vulkanContext.getCore().getComputeQueue();
+    VkCommandBuffer solveCommand = commandBufferManager.getSolveCommand();
+    
+    VkSubmitInfo submitInfo{ VK_STRUCTURE_TYPE_SUBMIT_INFO };
+    submitInfo.commandBufferCount = 1;
+    submitInfo.pCommandBuffers    = &solveCommand;
+
+    VkFence fence;
+    VkFenceCreateInfo fenceInfo{};
+    fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+    fenceInfo.pNext = nullptr;
+    fenceInfo.flags = 0;
+
+    vkCreateFence(device, &fenceInfo, nullptr, &fence);
+
+    auto* basePointer = static_cast<u8*>(memoryManager.getMonolithicMapped());   
+    auto* edgeWeightsSlice = basePointer + bufferLayout.edgeWeightsOffset;
+
+    std::cout << "[C++] Starting iterations" << std::endl;
+
+    for (u32 i = 0; i < algorithmSettings.iterations; i++) {
+        std::cout << "[C++] Submitting to queue" << std::endl;
+
+        vkResetFences(device, 1, &fence);   
+        
+        if (vkQueueSubmit(computeQueue, 1, &submitInfo, fence) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to submit the solve command to the vulkan compute queue");
+        }
+
+        std::cout << "[C++] Waiting..." << std::endl;
+
+        if (vkWaitForFences(device, 1, &fence, VK_TRUE, UINT64_MAX) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to submit the solve command to the vulkan compute queue");
+        }
+
+        // FLUSH, although shouldnt be necessary since host_coherent is active
+        VkMappedMemoryRange range{};
+        range.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+        range.memory = memoryManager.getMonolithicMemoryHandle();
+        range.offset = bufferLayout.edgeWeightsOffset;
+        range.size = bufferLayout.edgeWeightsSize;
+
+        vkInvalidateMappedMemoryRanges(device, 1, &range);
+        /*
+        if (vkQueueWaitIdle(computeQueue) != VK_SUCCESS) {
+            throw std::runtime_error("Failed to wait for queue idle during single time command");
+        }
+        */
+        std::cout << "[C++] Done." << std::endl;
+        
+        // Test counter
+
+        u32 currentCounterValue = *reinterpret_cast<u32*>(edgeWeightsSlice);
+        std::cout << "[C++] Iteration " << i << ": counter = " << currentCounterValue << std::endl;
+
+        // TODO Check for interrupts, update current best path etc.
+    }
+
+    vkDestroyFence(device, fence, nullptr);
+
+    return ExitStatus::SUCCESS;
 }
 
 void AntColonySolver::print() {

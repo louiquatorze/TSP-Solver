@@ -8,11 +8,18 @@
 
 class TSPDescriptorSetBundle {
 public:
+    struct DescriptorBindingUpdate {
+        i32 binding;
+        VkDeviceSize offset;
+        VkDeviceSize range;
+    };
+
     TSPDescriptorSetBundle(const VulkanCore& vulkanCore);
     ~TSPDescriptorSetBundle();
 
     VkDescriptorSet       getDescriptorSet()       const { return descriptorSet; }
     VkDescriptorSetLayout getDescriptorSetLayout() const { return descriptorSetLayout; }
+    void bindBuffers(VkBuffer buffer, const std::vector<DescriptorBindingUpdate>& descriptorBindingUpdates) const;
 
     u32 getEdgeWeightsBinding()   const { return edgeWeightsBinding; }
     u32 getHeuristicsBinding()    const { return heuristicsBinding; }

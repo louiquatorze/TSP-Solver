@@ -3,10 +3,10 @@
 
 #include <iostream>
 
-VulkanContext::VulkanContext() {
-    core    = std::make_unique<VulkanCore>();
-    engine  = std::make_unique<VulkanEngine>(*core);
-    manager = std::make_unique<VulkanTSPResourceManager>(*core);
+VulkanContext::VulkanContext() :
+    core   (std::make_unique<VulkanCore>()),
+    engine (std::make_unique<VulkanEngine>(*core)),
+    manager(std::make_unique<VulkanTSPResourceManager>(*core)) {
 
     std::cout << "[C++] Vulkan Context successfully created.\n";  
 }

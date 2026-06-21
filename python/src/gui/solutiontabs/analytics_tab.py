@@ -1,10 +1,36 @@
+import threading
+
 import pyqtgraph as pg
+import numpy as np
+
 from PySide6.QtWidgets import (QCheckBox, QWidget, QVBoxLayout, QGroupBox, QComboBox, 
                                QLabel, QStackedWidget, QPushButton, QFrame, 
                                QFormLayout, QSpinBox, QHBoxLayout, QSlider, QSizePolicy)
-from PySide6.QtCore import Qt
+from PySide6.QtCore import QTimer, Qt
 
 from src.solver.analytics import Analytics
+
+class RingBuffer:
+    def __init__(self, size=1024):
+        self.size = size
+        self.data = np.zeros(size, dtype=np.int32)
+        self.reset()
+    
+    def reset(self):
+        self.index = 0
+        self.count = 0
+
+    def append(self, value):
+        self.data[self.index] = value
+        self.count = min((self.count + 1), self.size) 
+        self.index = (self.index + 1) % len(self.data)
+
+    def get_values(self):
+        print("Fetching values...")
+        if self.count < self.size:
+            return self.data[:self.count]
+        
+        return np.concatenate((self.data[self.index:], self.data[:self.index]))
 
 class AnalyticsTab(QWidget):
     def __init__(self, parent=None):
@@ -15,6 +41,14 @@ class AnalyticsTab(QWidget):
         self.layout.setAlignment(Qt.AlignmentFlag.AlignTop)
         self.layout.setSpacing(15)
         self.layout.setContentsMargins(10, 10, 10, 10)
+
+        # Init plot data
+        self.PLOT_DATA_SIZE = 1024
+        
+        self.lock = threading.Lock()
+
+        self.cbl_ringbuffer = RingBuffer()
+        self.lib_ringbuffer = RingBuffer()
 
         # Apply Global Dark Mode Theme
         self.setStyleSheet("""
@@ -96,7 +130,12 @@ class AnalyticsTab(QWidget):
         set_cbl_section_visible()  
         set_lib_section_visible()
 
-        self.clear_all()
+        self.clear_plots()
+        
+        # Start refresh cycle
+        self.refresh_timer = QTimer()
+        self.refresh_timer.timeout.connect(self.refresh_plots)
+        self.refresh_timer.start(66) # Refresh at ~15 FPS
 
     def _create_analytic_subsection(self, title_text):
         """Helper method to construct identical, neat data subsections with rigid vertical rules."""
@@ -144,7 +183,10 @@ class AnalyticsTab(QWidget):
 
         # Graph Plot
         plot_widget = pg.PlotWidget()
-        plot_widget.setFixedHeight(200) # Locked graph height inside the panel 
+        plot_widget.setFixedHeight(200) # Locked graph height inside the panel
+
+        # Create plot line
+        plot_line = plot_widget.plot(pen='#b5cea8') 
         
         # Dark Theme Configuration for pyqtgraph
         plot_widget.setBackground('#1e1e1e')
@@ -153,7 +195,7 @@ class AnalyticsTab(QWidget):
         
         sub_layout.addWidget(plot_widget)
 
-        return sub_widget, val_label, acc_label, plot_widget, pct_chk
+        return sub_widget, val_label, acc_label, plot_line, pct_chk
 
     def _add_section(self, text):
         header = QLabel(text.upper())
@@ -161,20 +203,44 @@ class AnalyticsTab(QWidget):
         self.layout.addWidget(header)
     
     def set_buttons_enabled(self, enabled):
-        self.progress_btn.setEnabled(enabled)
-        self.cbl_btn.setEnabled(enabled)
-        self.cbp_btn.setEnabled(enabled)
-        self.lib_btn.setEnabled(enabled)
-
-    def clear_all(self):
-        pass
+        with self.lock:
+            self.progress_btn.setEnabled(enabled)
+            self.cbl_btn.setEnabled(enabled)
+            self.cbp_btn.setEnabled(enabled)
+            self.lib_btn.setEnabled(enabled)
 
     def get_analytics_flags(self):
-        flags = 0
+        with self.lock:
+            flags = 0
 
-        flags |= Analytics.Progress.value          if self.progress_btn.isChecked() else 0
-        flags |= Analytics.CurrentBestLength.value if self.cbl_btn.isChecked()      else 0
-        flags |= Analytics.CurrentBestPath.value   if self.cbp_btn.isChecked()      else 0
-        flags |= Analytics.LastIterationBest.value if self.lib_btn.isChecked()      else 0
+            flags |= Analytics.Progress.value          if self.progress_btn.isChecked() else 0
+            flags |= Analytics.CurrentBestLength.value if self.cbl_btn.isChecked()      else 0
+            flags |= Analytics.CurrentBestPath.value   if self.cbp_btn.isChecked()      else 0
+            flags |= Analytics.LastIterationBest.value if self.lib_btn.isChecked()      else 0
 
         return flags
+    
+    def refresh_plots(self):
+        with self.lock:
+            if self.cbl_btn.isChecked():
+                self.cbl_plot.setData(self.cbl_ringbuffer.get_values())
+                
+            if self.lib_btn.isChecked():
+                self.lib_plot.setData(self.lib_ringbuffer.get_values())
+
+    def update_cbl_plot(self, value):
+        with self.lock:
+            self.cbl_ringbuffer.append(value)
+
+    def update_lib_plot(self, value):
+        with self.lock:
+            self.lib_ringbuffer.append(value)
+
+    def clear_plots(self):
+        with self.lock:
+            self.cbl_ringbuffer.reset()
+            self.lib_ringbuffer.reset()
+            
+            self.cbl_plot.setData(np.array([], dtype=np.int32))
+            self.lib_plot.setData(np.array([], dtype=np.int32))
+

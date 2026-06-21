@@ -11,8 +11,9 @@
 #include <iostream>
 #include <vulkan/vulkan.h>
 
-TSPSolver::TSPSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags) :
+TSPSolver::TSPSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags) :
     environment(environment),
+    vulkanContext(vulkanContext),
     algorithmSettings(algorithmSettings),
     tsp(tsp),
     solutionData_out(solutionData_out),

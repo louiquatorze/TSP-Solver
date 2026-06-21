@@ -5,6 +5,8 @@
 
 #include "VulkanTSPMemoryManager.hpp"
 #include "VulkanTSPPipelineManager.hpp"
+#include "VulkanTSPCommandBufferManager.hpp"
+
 #include "TSPDescriptorSetBundle.hpp"
 #include "ExitStatus.hpp"
 
@@ -15,10 +17,13 @@ class VulkanTSPResourceManager {
 public:
     VulkanTSPResourceManager(const VulkanCore& vulkanCore);
     ~VulkanTSPResourceManager();
-    
-    ExitStatus bindIterativeBuffers(i32 dim);
-    ExitStatus bindAntColonyBuffers(i32 dim, i32 antCount);
+
+    VulkanTSPMemoryManager&        getMemoryManager()        const { return *memoryManager; }
+    VulkanTSPPipelineManager&      getPipelineManager()      const { return *pipelineManager; }
+    VulkanTSPCommandBufferManager& getCommandBufferManager() const { return *commandBufferManager; }
+
 private:
-    std::unique_ptr<VulkanTSPMemoryManager> memoryManager;
-    std::unique_ptr<VulkanTSPPipelineManager> pipelineManager;
+    std::unique_ptr<VulkanTSPPipelineManager>      pipelineManager;
+    std::unique_ptr<VulkanTSPCommandBufferManager> commandBufferManager;
+    std::unique_ptr<VulkanTSPMemoryManager>        memoryManager;
 };

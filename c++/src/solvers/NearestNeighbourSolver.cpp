@@ -5,8 +5,8 @@
 #include <random>
 #include <vector>
 
-NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
-    : TSPSolver(environment, algorithmSettings, tsp, solutionData_out, analyticFlags)
+NearestNeighbourSolver::NearestNeighbourSolver(Environment& environment, VulkanContext& vulkanContext, AlgorithmSettings& algorithmSettings, TSP& tsp, SolutionData& solutionData_out, u32 analyticFlags)
+    : TSPSolver(environment, vulkanContext, algorithmSettings, tsp, solutionData_out, analyticFlags)
 { }
 
 ExitStatus NearestNeighbourSolver::getPathLength(Environment& environment, TSP& tsp, i64& length_out) {

@@ -6,11 +6,25 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 source "$SCRIPT_DIR/../config.sh"
 
 mkdir -p "$SHADER_OUT_DIR"
+mkdir -p "$SHADER_OUT_DIR/iterative"
+mkdir -p "$SHADER_OUT_DIR/antColony"
 
-$SHADER_COMPILER $SHADER_FLAGS \
-    "$SHADER_SRC_DIR/iterativeCS.comp" \
-    -o "$SHADER_OUT_DIR/iterativeCS.spv"
+INCLUDE_FLAG="-I$SHADER_SRC_DIR"
 
-$SHADER_COMPILER $SHADER_FLAGS \
-    "$SHADER_SRC_DIR/antColonyCS.comp" \
-    -o "$SHADER_OUT_DIR/antColonyCS.spv"
+################## Iterative ##################
+
+$SHADER_COMPILER $SHADER_FLAGS $INCLUDE_FLAG \
+    "$SHADER_SRC_DIR/iterative/calculateCS.comp" \
+    -o "$SHADER_OUT_DIR/iterative/calculateCS.comp.spv"
+
+################## AntColony ##################
+
+$SHADER_COMPILER $SHADER_FLAGS $INCLUDE_FLAG \
+    "$SHADER_SRC_DIR/antColony/simulateAntsCS.comp" \
+    -o "$SHADER_OUT_DIR/antcolony/simulateAntsCS.comp.spv"
+
+$SHADER_COMPILER $SHADER_FLAGS $INCLUDE_FLAG \
+    "$SHADER_SRC_DIR/antColony/rewardBestPathCS.comp" \
+    -o "$SHADER_OUT_DIR/antcolony/rewardBestPathCS.comp.spv"
+
+    

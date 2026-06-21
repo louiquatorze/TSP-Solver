@@ -7,6 +7,7 @@
 #include "Environment.hpp"
 #include "ExitStatus.hpp"
 #include "Analytics.hpp"
+#include "VulkanContext.hpp"
 
 #include <functional>
 #include <memory>
@@ -14,7 +15,7 @@
 class TSPSolver {
 public:
     TSPSolver() = delete;
-    TSPSolver(Environment&, AlgorithmSettings&, TSP&, SolutionData&, u32);
+    TSPSolver(Environment&, VulkanContext&, AlgorithmSettings&, TSP&, SolutionData&, u32);
     virtual ~TSPSolver() = default;
 
     ExitStatus solve();
@@ -30,6 +31,7 @@ protected:
     virtual ExitStatus solveGPU() = 0;
 
     Environment& environment;
+    VulkanContext& vulkanContext;
     AlgorithmSettings& algorithmSettings;
     TSP& tsp;
     SolutionData& solutionData_out;
