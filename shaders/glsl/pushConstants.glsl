@@ -1,7 +1,7 @@
 
 // Must match c++/include/vulkan/engine/PushConstants.h !
 
-layout(push_constant, std430) uniform Block {
+layout(push_constant) uniform Block {
     uint dim;
         
     // Ant colony solver
@@ -10,4 +10,6 @@ layout(push_constant, std430) uniform Block {
     float exploitationProbability;
     float localEvaporation;
     float globalEvaporation;
+
+    uint currentIteration;
 } pushConstants;

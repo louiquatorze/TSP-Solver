@@ -1,6 +1,6 @@
 
 #version 450
-layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
 
 #include "pushConstants.glsl"
 #include "bufferBindings.glsl"
@@ -11,4 +11,17 @@ void main() {
         visited.counter *= 2;
     }
     */
+
+    /*
+    // For testing
+    edgeWeights.matrix[0] = 10;
+    heuristics.matrix[0] = 0.11111;
+    pheromones.matrix[0] = 0.420;
+    visited.indices[0] = 1000;
+    probabilisticWeights.values[0] = 35252.325;
+    pathLenghts.values[0] = 25;
+    bestPath.len = 42;
+    */
+
+
 }

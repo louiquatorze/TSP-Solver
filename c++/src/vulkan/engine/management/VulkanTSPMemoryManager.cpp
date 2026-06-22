@@ -96,10 +96,6 @@ void VulkanTSPMemoryManager::stageAndCopyData(const std::vector<StageData>& stag
     }
 }
 
-void VulkanTSPMemoryManager::pushPushConstants(PushConstants pushConstants) {
-    
-}
-
 ExitStatus VulkanTSPMemoryManager::calculateBufferLayoutIterative(i32 dim) {
     const auto device = vulkanCore.getLogicalDevice();
     
@@ -118,17 +114,23 @@ ExitStatus VulkanTSPMemoryManager::calculateBufferLayoutIterative(i32 dim) {
 ExitStatus VulkanTSPMemoryManager::calculateBufferLayoutAntColony(i32 dim, i32 antCount) {
     const auto device = vulkanCore.getLogicalDevice();
     
-    bufferLayout.edgeWeightsSize = alignUp(dim * dim * sizeof(f32));
-    bufferLayout.heuristicsSize  = alignUp(dim * dim * sizeof(f32));
-    bufferLayout.pheromonesSize  = alignUp(dim * dim * sizeof(f32));
-    bufferLayout.visitedSize     = alignUp(dim * antCount * sizeof(i32));
+    bufferLayout.edgeWeightsSize          = alignUp(dim * dim * sizeof(u32));
+    bufferLayout.heuristicsSize           = alignUp(dim * dim * sizeof(f32));
+    bufferLayout.pheromonesSize           = alignUp(dim * dim * sizeof(f32));
+    bufferLayout.visitedSize              = alignUp(dim * antCount * sizeof(u32));
+    bufferLayout.probabilisticWeightsSize = alignUp(dim * antCount * sizeof(f32));
+    bufferLayout.pathLengthsSize          = alignUp(dim * antCount * sizeof(u32));
+    bufferLayout.bestPathSize             = alignUp((dim + 1) * sizeof(u32)); // +1 for length of path
 
-    bufferLayout.edgeWeightsOffset = 0;
-    bufferLayout.heuristicsOffset  = bufferLayout.edgeWeightsOffset + bufferLayout.edgeWeightsSize;
-    bufferLayout.pheromonesOffset  = bufferLayout.heuristicsOffset + bufferLayout.heuristicsSize;
-    bufferLayout.visitedOffset     = bufferLayout.pheromonesOffset + bufferLayout.pheromonesSize;
+    bufferLayout.edgeWeightsOffset          = 0;
+    bufferLayout.heuristicsOffset           = bufferLayout.edgeWeightsOffset + bufferLayout.edgeWeightsSize;
+    bufferLayout.pheromonesOffset           = bufferLayout.heuristicsOffset + bufferLayout.heuristicsSize;
+    bufferLayout.visitedOffset              = bufferLayout.pheromonesOffset + bufferLayout.pheromonesSize;    
+    bufferLayout.probabilisticWeightsOffset = bufferLayout.visitedOffset + bufferLayout.visitedSize;
+    bufferLayout.pathLengthsOffset          = bufferLayout.probabilisticWeightsOffset + bufferLayout.probabilisticWeightsSize;
+    bufferLayout.bestPathOffset             = bufferLayout.pathLengthsOffset + bufferLayout.pathLengthsSize;
     
-    bufferLayout.totalSize = bufferLayout.visitedOffset + bufferLayout.visitedSize;
+    bufferLayout.totalSize = bufferLayout.bestPathOffset + bufferLayout.bestPathSize;
 
     if (bufferLayout.totalSize > RESERVED_MEMORY_SIZE) {
         return ExitStatus::ERROR_MEMORY_LIMIT;

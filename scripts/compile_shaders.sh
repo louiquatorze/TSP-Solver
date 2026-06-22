@@ -21,10 +21,10 @@ $SHADER_COMPILER $SHADER_FLAGS $INCLUDE_FLAG \
 
 $SHADER_COMPILER $SHADER_FLAGS $INCLUDE_FLAG \
     "$SHADER_SRC_DIR/antColony/simulateAntsCS.comp" \
-    -o "$SHADER_OUT_DIR/antcolony/simulateAntsCS.comp.spv"
+    -o "$SHADER_OUT_DIR/antColony/simulateAntsCS.comp.spv"
 
 $SHADER_COMPILER $SHADER_FLAGS $INCLUDE_FLAG \
     "$SHADER_SRC_DIR/antColony/rewardBestPathCS.comp" \
-    -o "$SHADER_OUT_DIR/antcolony/rewardBestPathCS.comp.spv"
+    -o "$SHADER_OUT_DIR/antColony/rewardBestPathCS.comp.spv"
 
     

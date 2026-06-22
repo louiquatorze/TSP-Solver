@@ -26,6 +26,11 @@ public:
     VkQueue getTransferQueue() const { return m_transferQueue; }
     u32 getTransferQueueFamilyIndex() const { return m_transferFamilyIndex; }
 
+    const i32 X_THREAD_GROUPS = 32;
+    const i32 Y_THREAD_GROUPS = 1;
+    const i32 Z_THREAD_GROUPS = 1;
+
+    const i32 TOTAL_THREAD_GROUPS = X_THREAD_GROUPS * Y_THREAD_GROUPS * Z_THREAD_GROUPS;
 private:
     void createInstance();
     void pickPhysicalDevice();
