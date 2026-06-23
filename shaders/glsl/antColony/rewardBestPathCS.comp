@@ -1,27 +1,67 @@
 
 #version 450
-layout(local_size_x = 128, local_size_y = 1, local_size_z = 1) in;
+layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 
 #include "pushConstants.glsl"
 #include "bufferBindings.glsl"
 
-void main() {
-    /*
-    if (gl_GlobalInvocationID.x == 0) {
-        visited.counter *= 2;
+#define SET_PHEROMONES(l, c) {                                     \
+    uint idx1 = (l) * dim + (c);                                   \
+    uint idx2 = (c) * dim + (l);                                   \
+                                                                   \
+    float p = (1.0f - globalEvaporation) * pheromones.matrix[idx1] \
+            + globalEvaporation * pheromoneSecretion;              \
+                                                                   \
+    pheromones.matrix[idx1] = p;                                   \
+    pheromones.matrix[idx2] = p;                                   \
+}
+
+void main() {    
+    const uint ID = gl_GlobalInvocationID.x;
+
+    // Check if ID is in bounds
+    if (ID != 0)
+        return;
+
+    // Reference necessary values
+    const uint dim      = pushConstants.dim;
+    const uint antCount = pushConstants.antCount;
+
+    const float pheromonePower           = pushConstants.pheromonePower;
+    const float initialPheromoneStrength = pushConstants.initialPheromoneStrength;
+    const float globalEvaporation        = pushConstants.globalEvaporation;
+
+    // Evaluate paths
+    uint minPathLengthAntID = 0;
+    for (uint i = 1; i < pushConstants.antCount; i++) {
+        if (pathLengths.values[i] < pathLengths.values[minPathLengthAntID]) {
+            minPathLengthAntID = i;
+        }
     }
-    */
 
-    /*
-    // For testing
-    edgeWeights.matrix[0] = 10;
-    heuristics.matrix[0] = 0.11111;
-    pheromones.matrix[0] = 0.420;
-    visited.indices[0] = 1000;
-    probabilisticWeights.values[0] = 35252.325;
-    pathLenghts.values[0] = 25;
-    bestPath.len = 42;
-    */
+    // Secrete global pheromone update
+    float pheromoneSecretion = 1.0f / pathLengths.values[minPathLengthAntID];
+    uint visitedIndex = dim * minPathLengthAntID;
+    
+    if (pathLengths.values[minPathLengthAntID] < bestPath.len) {
+        bestPath.len = pathLengths.values[minPathLengthAntID];
+        bestPath.indices[0] = visited.indices[visitedIndex++];
 
+        for (uint i = 1; i < dim; i++) {
+            bestPath.indices[i] = visited.indices[visitedIndex];
 
+            SET_PHEROMONES(visited.indices[visitedIndex - 1], visited.indices[visitedIndex]);
+            visitedIndex++;
+        }
+
+        SET_PHEROMONES(bestPath.indices[dim - 1u], bestPath.indices[0]);
+    } else {
+        visitedIndex++;
+        for (uint i = 1; i < dim; i++) {
+            SET_PHEROMONES(visited.indices[visitedIndex - 1], visited.indices[visitedIndex]);
+            visitedIndex++;
+        }
+
+        SET_PHEROMONES(visited.indices[visitedIndex - 1u], visited.indices[dim * minPathLengthAntID]);
+    }
 }

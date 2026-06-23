@@ -5,6 +5,9 @@
 
 struct PushConstants {   
     alignas(4) u32 dim;
+    
+    alignas(4) u32 iteration;
+    alignas(4) u32 seed;
 
     // Ant colony solver
     alignas(4) u32 antCount;
@@ -12,6 +15,5 @@ struct PushConstants {
     alignas(4) f32 exploitationProbability;
     alignas(4) f32 localEvaporation;
     alignas(4) f32 globalEvaporation;
-    
-    alignas(4) u32 currentIndex;
+    alignas(4) f32 initialPheromoneStrength;
 };

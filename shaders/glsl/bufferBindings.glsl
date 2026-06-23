@@ -21,7 +21,7 @@ layout(std430, set = 0, binding = 4) buffer ProbabilisticWeights {
 
 layout(std430, set = 0, binding = 5) buffer PathLengths {
     uint values[];
-} pathLenghts;
+} pathLengths;
 
 layout(std430, set = 0, binding = 6) buffer BestPath {
     uint len;

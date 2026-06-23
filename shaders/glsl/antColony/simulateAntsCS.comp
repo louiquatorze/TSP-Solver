@@ -1,134 +1,115 @@
 
 #version 450
+#extension GL_EXT_shader_atomic_float : enable
 layout(local_size_x = 32, local_size_y = 1, local_size_z = 1) in;
 
 #include "pushConstants.glsl"
 #include "bufferBindings.glsl"
 #include "random.glsl"
+#include "hash.glsl"
+#include "util.glsl"
 
 void main() {
     const uint antID    = gl_GlobalInvocationID.x;
     const uint antCount = pushConstants.antCount;
 
+    // Check if ID is in bounds
     if (antID >= antCount)
         return;
 
-    const uint dim                      = pushConstants.dim;
-    const float pheromonePower          = pushConstants.pheromonePower;
-    const float exploitationProbability = pushConstants.exploitationProbability;
-    const float localEvaporation        = pushConstants.localEvaporation;
+    // Reference necessary values
+    const uint  dim                      = pushConstants.dim;
+    const float pheromonePower           = pushConstants.pheromonePower;
+    const float exploitationProbability  = pushConstants.exploitationProbability;
+    const float localEvaporation         = pushConstants.localEvaporation;
+    const float initialPheromoneStrength = pushConstants.initialPheromoneStrength;
 
-    const uint visitedRowStartIndex = antID * dim;
+    const uint antSpecificValuesIndex = antID * dim;
 
+    // Init random number generator
+    const uint seed = antID + (pushConstants.iteration * 1966087u) + (pushConstants.seed * 2654435761u);
     PCGState rng;
-    rng.state = antID;
+    rng.state = hash(seed);
+    
+    // Reset path lengths
+    pathLengths.values[antID] = 0u;
+    
+    // Set random starting node
+    const uint swapToStart = pcg_next(rng) % dim;
+    swap(visited.indices[antSpecificValuesIndex], visited.indices[antSpecificValuesIndex + swapToStart]);
 
     for (uint seq = 1; seq < dim; seq++) {
-        uint current = visited.indices[visitedRowStartIndex + seq - 1];
-    }
+        // Index of the current visited node
+        uint currentVisitedIndex = visited.indices[antSpecificValuesIndex + seq - 1];
+        uint matrixRow = currentVisitedIndex * dim;
 
-    // For testing
-    edgeWeights.matrix[0] = 10;
-    heuristics.matrix[0] = 0.69;
-    pheromones.matrix[0] = 0.420;
-    visited.indices[0] = 1000;
-    probabilisticWeights.values[0] = 35252.325;
-    pathLenghts.values[0] = 25;
-    bestPath.len = 42;
+        // Find the next node to visit
+        uint nextVisitedIndex = antSpecificValuesIndex + seq;
+        float q = pcg_nextf(rng);
 
-}
+        if (q < exploitationProbability) {
+            float maxScore = -1.0f;
 
-/*
-void AntColonySolver::runAntColonyIteration() {
-    // Iterate through all steps
-    for (i32 step = 1; step < tsp.dimension; step++) {
+            for (uint notVisited = seq; notVisited < dim; notVisited++) {
+                uint notVisitedIndex = antSpecificValuesIndex + notVisited;
+                uint matrixIndex = matrixRow + visited.indices[notVisitedIndex];
+                float score = heuristics.matrix[matrixIndex] * pheromones.matrix[matrixIndex];
 
-        // Iterate through ants
-        for (i32 ant = 0; ant < algorithmSettings.antCount; ant++) {
-            // Pick next node
-
-            // Index of the start of the row in indices corresponding to the current ant
-            i32 visitedRow = ant * tsp.dimension;
-
-            // The current visited node
-            i32 current = visited[visitedRow + step - 1];
-            
-            // Index of the start of the row in edgeWeights corresponding to the currently visited node
-            i32 row = current * tsp.dimension;
-
-            i32 nextVisitedIndex = -1;
-            f32 q = realGen(gen);
-            
-            if (q < algorithmSettings.exploitationProbability) {
-                // Pick Greedy
-
-                f32 maxScore = -1.0f;
-
-                for (i32 notVisited = step; notVisited < tsp.dimension; notVisited++) {
-                    i32 notVisitedIndex = visitedRow + notVisited;
-                    i32 index = row + visited[notVisitedIndex];
-                    f32 score = tsp.heuristics[index] * pheromones[index];
-
-                    if (maxScore < score) {
-                        maxScore = score;
-                        nextVisitedIndex = notVisitedIndex;
-                    }
+                if (maxScore < score) {
+                    maxScore = score;
+                    nextVisitedIndex = notVisitedIndex;
                 }
-            } else {
-                // Pick probabilistically
+            }
+        } else {
+            float sumScores = 0.0f;
 
-                f32 sumScores = 0.0f;
+            for (uint notVisited = seq; notVisited < dim; notVisited++) {
+                uint notVisitedIndex = antSpecificValuesIndex + notVisited;
+                uint matrixIndex = matrixRow + visited.indices[notVisitedIndex];
+                float score = heuristics.matrix[matrixIndex] * pheromones.matrix[matrixIndex];
 
-                for (i32 notVisited = step; notVisited < tsp.dimension; notVisited++) {
-                    i32 notVisitedIndex = visitedRow + notVisited;
-                    i32 index = row + visited[notVisitedIndex];
-                    f32 score = tsp.heuristics[index] * pheromones[index];
-                    
-                    sumScores += score;
-                    probabilisticWeights[notVisited] = score;
-                }
-
-                f32 r = realGen(gen) * sumScores;
-
-                i32 nextIndex = step;
-                while (nextIndex < tsp.dimension) {
-                    r -= probabilisticWeights[nextIndex];
-                    
-                    if (r <= 0) 
-                        break;
-                        
-                    nextIndex++;
-                }
-
-                nextVisitedIndex = visitedRow + nextIndex;
+                sumScores += score;
+                probabilisticWeights.values[antSpecificValuesIndex + notVisited] = score;
             }
 
-            // Get next node to visit up front
-            // Visited looks like
-            // 10 5 2 8 6 1 4 3 7 9 11 50 21 ...
-            // < visited | not visited >
-            std::swap(visited[visitedRow + step], visited[nextVisitedIndex]);
-            i32 next = visited[visitedRow + step];
+            float r = pcg_nextf(rng) * sumScores;
 
-            // Update local pheromone
+            uint nextIndex = seq;
+            while (nextIndex < dim) {
+                r -= probabilisticWeights.values[antSpecificValuesIndex + nextIndex];
 
-            i32 i1 = current + next * tsp.dimension;
-            i32 i2 = next + current * tsp.dimension;
-            
-            f32 p = (1.0f - algorithmSettings.localEvaporationRate) * pheromones[i1] + algorithmSettings.localEvaporationRate * initialPheromoneStrength;
-            pheromones[i1] = p;
-            pheromones[i2] = p;
+                if (r <= 0) 
+                    break;
 
-            pathLenghts[ant] += tsp.edgeWeights[i1];
+                nextIndex++;
+            }
+
+            nextVisitedIndex = antSpecificValuesIndex + nextIndex;
         }
+
+        // Get next node to visit up front
+        // Visited looks like
+        // 10 5 2 8 6 1 4 3 7 9 11 50 21 ...
+        // < visited | not visited >
+        swap(visited.indices[antSpecificValuesIndex + seq], visited.indices[nextVisitedIndex]);
+        uint next = visited.indices[antSpecificValuesIndex + seq];
+
+        // Update local pheromone
+        uint i1 = currentVisitedIndex + next * dim;
+        uint i2 = next + currentVisitedIndex * dim;
+        
+        float delta = (1.0f - localEvaporation) * pheromones.matrix[i1] \
+                     + localEvaporation * initialPheromoneStrength      \
+                     - pheromones.matrix[i1];
+
+        pheromones.matrix[i1] += delta;
+        pheromones.matrix[i2] += delta;
+    
+        pathLengths.values[antID] += edgeWeights.matrix[i1];
     }
 
-    i32 visitedRow = 0;
-    for (i32 ant = 0; ant < algorithmSettings.antCount; ant++) {
-        i32 nextVisitedRow = visitedRow + tsp.dimension;
-
-        pathLenghts[ant] += tsp.ew(visited[visitedRow], visited[nextVisitedRow - 1]);
-        visitedRow = nextVisitedRow;
-    }
+    // Close the Hamiltonian cycle (return to start)
+    uint lastNode = visited.indices[antSpecificValuesIndex + dim - 1u];
+    uint firstNode = visited.indices[antSpecificValuesIndex];
+    pathLengths.values[antID] += edgeWeights.matrix[firstNode + lastNode * dim];
 }
-*/

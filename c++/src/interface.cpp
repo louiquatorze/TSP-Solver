@@ -106,10 +106,12 @@ extern "C" {
             for (i32 i = 0; i < tsp->dimension - 1; i++) {
                 length += tsp->ew(indices[i], indices[i + 1]);
             }
+            length += tsp->ew(indices[tsp->dimension - 1], indices[0]);
         } else if (tsp->heuristics != nullptr) {
             for (i32 i = 0; i < tsp->dimension - 1; i++) {
                 length += static_cast<u32>(1.0 / tsp->he(indices[i], indices[i + 1]));
             }
+            length += static_cast<u32>(1.0 / tsp->he(indices[tsp->dimension - 1], indices[0]));
         }
 
         solutionData_out->optPathLength = length;

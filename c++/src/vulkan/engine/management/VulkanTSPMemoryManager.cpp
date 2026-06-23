@@ -119,7 +119,7 @@ ExitStatus VulkanTSPMemoryManager::calculateBufferLayoutAntColony(i32 dim, i32 a
     bufferLayout.pheromonesSize           = alignUp(dim * dim * sizeof(f32));
     bufferLayout.visitedSize              = alignUp(dim * antCount * sizeof(u32));
     bufferLayout.probabilisticWeightsSize = alignUp(dim * antCount * sizeof(f32));
-    bufferLayout.pathLengthsSize          = alignUp(dim * antCount * sizeof(u32));
+    bufferLayout.pathLengthsSize          = alignUp(antCount * sizeof(u32));
     bufferLayout.bestPathSize             = alignUp((dim + 1) * sizeof(u32)); // +1 for length of path
 
     bufferLayout.edgeWeightsOffset          = 0;

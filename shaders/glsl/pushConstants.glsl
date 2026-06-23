@@ -3,6 +3,9 @@
 
 layout(push_constant) uniform Block {
     uint dim;
+
+    uint iteration;
+    uint seed;
         
     // Ant colony solver
     uint antCount;
@@ -10,6 +13,6 @@ layout(push_constant) uniform Block {
     float exploitationProbability;
     float localEvaporation;
     float globalEvaporation;
-
-    uint currentIteration;
+    float initialPheromoneStrength;
 } pushConstants;
+
